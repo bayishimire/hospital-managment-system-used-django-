@@ -1,0 +1,661 @@
+{% extends 'base.html' %}
+{% block title %}Admin Mission Control – HMS Pro{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  /* Premium Mission Control Styles */
+  .mission-container {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .activity-grid {
+    flex: 1;
+    min-width: 0;
+    /* Important for flex child */
+  }
+
+  .onboarding-sidebar {
+    width: 320px;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 1200px) {
+    .onboarding-sidebar {
+      width: 100%;
+    }
+  }
+
+  /* Activity Cards */
+  .op-card {
+    background: #fff;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  }
+
+  .op-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    border-color: var(--hms-accent);
+  }
+
+  .op-icon-box {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .op-title {
+    font-weight: 800;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .op-desc {
+    font-size: 0.82rem;
+    color: #6c757d;
+    margin-bottom: 1.25rem;
+    line-height: 1.4;
+  }
+
+  .op-analysis {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px dashed #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .analysis-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .analysis-val {
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--hms-primary);
+  }
+
+  /* Registration Sidebar */
+  .onboard-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 0;
+    color: #1e3a5f;
+    position: sticky;
+    top: 80px;
+    box-shadow: 0 10px 40px rgba(30, 58, 95, 0.12);
+    overflow: hidden;
+    border: 1px solid rgba(30, 58, 95, 0.08);
+  }
+
+  .onboard-header {
+    padding: 1.4rem 1.6rem 1.2rem;
+    border-bottom: 1px solid #eef2f7;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+  }
+
+  .onboard-body {
+    padding: 1.2rem 1.6rem 1.4rem;
+  }
+
+  /* Icon-prefixed input groups */
+  .icon-field {
+    position: relative;
+    margin-bottom: 0;
+  }
+
+  .icon-field .field-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #2980b9;
+    font-size: 0.95rem;
+    pointer-events: none;
+    z-index: 2;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s;
+  }
+
+  /* Icon moves/bounces when the sibling input is focused */
+  .icon-field:focus-within .field-icon {
+    transform: translateY(-50%) translateX(3px) scale(1.25);
+    color: #1a6696;
+  }
+
+  .onboard-form .form-label {
+    font-weight: 700;
+    font-size: 0.68rem;
+    color: #4a6fa5;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    margin-bottom: 4px;
+  }
+
+  .onboard-form .form-control,
+  .onboard-form .form-select {
+    background: #f4f8fc;
+    border: 1.5px solid #d0e3f5;
+    color: #1e3a5f;
+    font-size: 0.88rem;
+    padding: 0.52rem 0.85rem 0.52rem 2.35rem;
+    border-radius: 10px;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+
+  .onboard-form .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%232980b9' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-color: #f4f8fc;
+  }
+
+  .onboard-form .form-control::placeholder {
+    color: #aac5de;
+  }
+
+  .onboard-form .form-control:focus,
+  .onboard-form .form-select:focus {
+    background: #eaf3fc;
+    border-color: #2980b9;
+    box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.12);
+    color: #1e3a5f;
+    outline: none;
+  }
+
+  /* Photo upload */
+  .onboard-form input[type="file"].form-control {
+    padding: 0.38rem 0.85rem 0.38rem 2.35rem;
+    font-size: 0.78rem;
+    color: #4a6fa5;
+  }
+
+  /* Submit button */
+  .onboard-submit {
+    background: linear-gradient(135deg, #2980b9, #1e5f8c);
+    border: none;
+    color: #fff;
+    font-weight: 800;
+    border-radius: 12px;
+    padding: 0.7rem 1rem;
+    font-size: 0.88rem;
+    letter-spacing: 0.3px;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 14px rgba(41, 128, 185, 0.35);
+    cursor: pointer;
+  }
+
+  .onboard-submit:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 22px rgba(41, 128, 185, 0.5);
+    background: linear-gradient(135deg, #3498db, #2980b9);
+  }
+
+  .onboard-submit i {
+    display: inline-block;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .onboard-submit:hover i {
+    transform: rotate(15deg) scale(1.3);
+  }
+
+  /* Chart Mini */
+  .chart-mini {
+    height: 60px !important;
+  }
+
+  /* Identity Photo Support */
+  .staff-avatar-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mission-container">
+
+  <!-- ═══ MAIN OPERATIONS AREA (Left) ══════════════════════════════════ -->
+  <div class="activity-grid">
+    <div
+      class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+      <h4 class="fw-800 text-primary mb-0"><i class="bi bi-cpu-fill me-2"></i>Mission Control Center</h4>
+      <span id="live-clock" style="display:none;"></span>
+    </div>
+
+  <!-- Pandas & Matplotlib Activity Analytics Block -->
+  <div class="row g-4 mt-1">
+    <div class="col-lg-6">
+      <div class="hms-card h-100">
+        <div class="card-body p-4">
+          <h5 class="fw-800 text-primary mb-3"><i class="bi bi-bar-chart-fill me-2"></i>System Activity (24H)</h5>
+          {% if matplotlib_hist %}
+          <div class="text-center rounded-3 overflow-hidden bg-light p-2 border border-primary border-opacity-10 position-relative">
+            <span class="position-absolute top-0 end-0 m-2 badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size:0.6rem;"><i class="bi bi-robot me-1"></i>Pandas+Matplotlib</span>
+            <img src="{{ matplotlib_hist }}" alt="Activity Histogram" class="img-fluid w-100" style="mix-blend-mode: multiply;">
+          </div>
+          {% else %}
+          <div class="py-5 text-center text-muted">No activity data available.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-6">
+      <div class="hms-card h-100">
+        <div class="card-body p-4">
+          <h5 class="fw-800 text-primary mb-3"><i class="bi bi-pie-chart-fill me-2"></i>Top Modified Modules</h5>
+          {% if matplotlib_bar %}
+          <div class="text-center rounded-3 overflow-hidden bg-light p-2 border border-primary border-opacity-10 position-relative">
+            <span class="position-absolute top-0 end-0 m-2 badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size:0.6rem;"><i class="bi bi-robot me-1"></i>Pandas+Matplotlib</span>
+            <img src="{{ matplotlib_bar }}" alt="Modified Models Bar Chart" class="img-fluid w-100" style="mix-blend-mode: multiply;">
+          </div>
+          {% else %}
+          <div class="py-5 text-center text-muted">No module modification data available.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Operation Blocks -->
+    <div class="row g-4 mb-5">
+      <!-- 1. Reception & Registry -->
+      <div class="col-md-6 col-lg-4">
+        <a href="{% url 'clinical_monitor' %}" class="op-card">
+          <div class="op-icon-box bg-primary bg-opacity-10 text-primary">
+            <i class="bi bi-person-plus-fill"></i>
+          </div>
+          <div class="op-title">Reception & Registry</div>
+          <div class="op-desc">Manage patient intake, registration IDs, and the real-time visit queue.</div>
+          <div class="op-analysis">
+            <div class="analysis-tag text-primary">Live Queue</div>
+            <div class="analysis-val">{{ monitor.today_patients }} <small class="text-muted fw-normal">Today</small>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 2. Clinical Services -->
+      <div class="col-md-6 col-lg-4">
+        <a href="{% url 'clinical_monitor' %}" class="op-card">
+          <div class="op-icon-box bg-success bg-opacity-10 text-success">
+            <i class="bi bi-clipboard2-pulse-fill"></i>
+          </div>
+          <div class="op-title">Clinical Services</div>
+          <div class="op-desc">Overview of doctor consultations, diagnoses, and treatment histories.</div>
+          <div class="op-analysis">
+            <div class="analysis-tag text-success">Drs On-Duty</div>
+            <div class="analysis-val">{{ stats.doctors_on_duty }} <small class="text-muted fw-normal">Active</small>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 3. Laboratory Diagnostics -->
+      <div class="col-md-6 col-lg-4">
+        <a href="{% url 'lab_monitor' %}" class="op-card">
+          <div class="op-icon-box bg-info bg-opacity-10 text-info">
+            <i class="bi bi-microscope"></i>
+          </div>
+          <div class="op-title">Lab Diagnostics</div>
+          <div class="op-desc">Track pending test orders, result entries, and diagnostic throughput.</div>
+          <div class="op-analysis">
+            <div class="analysis-tag text-info">Pending</div>
+            <div class="analysis-val">{{ monitor.pending_lab }} <small class="text-muted fw-normal">Orders</small></div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 4. Pharmacy & Inventory -->
+      <div class="col-md-6 col-lg-4">
+        <a href="{% url 'pharmacy_monitor' %}" class="op-card">
+          <div class="op-icon-box bg-warning bg-opacity-10 text-warning">
+            <i class="bi bi-capsule"></i>
+          </div>
+          <div class="op-title">Pharmacy & Stock</div>
+          <div class="op-desc">Monitor medication inventory levels, low stock alerts, and prescriptions.</div>
+          <div class="op-analysis">
+            <div class="analysis-tag text-warning">Low Stock</div>
+            <div class="analysis-val">{{ monitor.low_stock }} <small class="text-muted fw-normal">Alerts</small></div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 5. Ward & Bed Control -->
+      <div class="col-md-6 col-lg-4">
+        <a href="{% url 'manage_beds' %}" class="op-card">
+          <div class="op-icon-box bg-danger bg-opacity-10 text-danger">
+            <i class="bi bi-door-open-fill"></i>
+          </div>
+          <div class="op-title">Ward & Bed Control</div>
+          <div class="op-desc">Manage hospital wards, bed occupancy, and patient admissions.</div>
+          <div class="op-analysis">
+            <div class="analysis-tag text-danger">Beds Available</div>
+            <div class="analysis-val">{{ monitor.available_beds }} <small class="text-muted fw-normal">Open</small>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 6. Hospital Finance -->
+      <div class="col-md-6 col-lg-4">
+        <a href="{% url 'finance_monitor' %}" class="op-card">
+          <div class="op-icon-box bg-secondary bg-opacity-10 text-secondary">
+            <i class="bi bi-cash-stack"></i>
+          </div>
+          <div class="op-title">Revenue & Billing</div>
+          <div class="op-desc">Audit hospital financial logs, pending payments, and revenue streams.</div>
+          <div class="op-analysis">
+            <div class="analysis-tag text-secondary">Paid Flow</div>
+            <div class="analysis-val">{{ monitor.total_revenue|floatformat:0 }} <small
+                class="text-muted fw-normal">RWF</small></div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 7. Patient Fish (Visits) -->
+      <div class="col-md-6 col-lg-4">
+        <a href="{% url 'clinical_monitor' %}" class="op-card" style="border: 2px solid #e908d2;">
+          <div class="op-icon-box bg-opacity-10 text-white" style="background-color: #e908d2;">
+            <i class="bi bi-file-earmark-medical"></i>
+          </div>
+          <div class="op-title" style="color: #e908d2;">Patient Fish Archive</div>
+          <div class="op-desc">Monitor every electronic patient record (Fish) generated across all departments.</div>
+          <div class="op-analysis">
+            <div class="analysis-tag" style="color: #e908d2;">Total Records</div>
+            <div class="analysis-val">{{ monitor.today_patients }} <small class="text-muted fw-normal">Active</small>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="hms-card">
+          <div class="card-header bg-white border-0 py-3">
+            <span class="fw-800 fs-6"><i class="bi bi-graph-up-arrow me-2 text-dark"></i>Patient Load Trend</span>
+          </div>
+          <div class="card-body pt-0">
+            <div style="height: 250px;">
+              <canvas id="flowChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="hms-card">
+          <div class="card-header bg-white border-0 py-3">
+            <span class="fw-800 fs-6"><i class="bi bi-pie-chart-fill me-2 text-success"></i>Revenue Share</span>
+          </div>
+          <div class="card-body pt-0">
+            <div style="height: 250px;">
+              <canvas id="revenueChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ONBOARDING SIDEBAR (Right) ══════════════════════════════════ -->
+  <div class="onboarding-sidebar">
+    <div class="onboard-card">
+      
+      <!-- Header -->
+      <div class="onboard-header">
+        <a href="{% url 'register' %}" class="d-flex align-items-center gap-3 text-decoration-none">
+          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#2980b9,#1a6696);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="bi bi-person-badge-fill text-white fs-5"></i>
+          </div>
+          <div>
+            <h5 class="fw-900 mb-0 text-white" style="font-size:1.05rem;">Onboard Staff</h5>
+            <p class="mb-0 text-white opacity-50" style="font-size:0.72rem;">Click to open full registration suite <i class="bi bi-arrow-right"></i></p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Form Body -->
+      <div class="onboard-body">
+        <form method="POST" enctype="multipart/form-data" class="onboard-form d-flex flex-column gap-3">
+          {% csrf_token %}
+          <input type="hidden" name="register_staff" value="1">
+
+          <!-- Name Row -->
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label"><i class="bi bi-person me-1"></i>First Name</label>
+              <div class="icon-field">
+                <i class="bi bi-person-fill field-icon"></i>
+                {{ reg_form.first_name }}
+              </div>
+            </div>
+            <div class="col-6">
+              <label class="form-label"><i class="bi bi-person me-1"></i>Last Name</label>
+              <div class="icon-field">
+                <i class="bi bi-person-fill field-icon"></i>
+                {{ reg_form.last_name }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Username -->
+          <div>
+            <label class="form-label"><i class="bi bi-at me-1"></i>Username</label>
+            <div class="icon-field">
+              <i class="bi bi-at field-icon"></i>
+              {{ reg_form.username }}
+            </div>
+          </div>
+
+          <!-- Photo -->
+          <div>
+            <label class="form-label"><i class="bi bi-camera me-1"></i>Identity Photo</label>
+            <div class="icon-field">
+              <i class="bi bi-camera-fill field-icon"></i>
+              {{ reg_form.profile_photo }}
+            </div>
+          </div>
+
+          <!-- Role + Phone -->
+          <div class="row g-2">
+            <div class="col-7">
+              <label class="form-label"><i class="bi bi-briefcase me-1"></i>Role</label>
+              <div class="icon-field">
+                <i class="bi bi-briefcase-fill field-icon"></i>
+                {{ reg_form.role }}
+              </div>
+            </div>
+            <div class="col-5">
+              <label class="form-label"><i class="bi bi-telephone me-1"></i>Phone</label>
+              <div class="icon-field">
+                <i class="bi bi-telephone-fill field-icon"></i>
+                {{ reg_form.phone }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Password Row -->
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label"><i class="bi bi-lock me-1"></i>Password</label>
+              <div class="icon-field">
+                <i class="bi bi-lock-fill field-icon"></i>
+                {{ reg_form.password1 }}
+              </div>
+            </div>
+            <div class="col-6">
+              <label class="form-label"><i class="bi bi-lock-fill me-1"></i>Confirm</label>
+              <div class="icon-field">
+                <i class="bi bi-shield-lock-fill field-icon"></i>
+                {{ reg_form.password2 }}
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="onboard-submit w-100 mt-2">
+            <i class="bi bi-shield-check me-2"></i>Authorize & Create
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ STAFF DIRECTORY TABLE (Full Width) ═══════════════════════════════════ -->
+<div class="mt-5">
+  <div class="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom border-primary border-opacity-25">
+    <h5 class="fw-800 text-primary mb-0"><i class="bi bi-people-fill me-2"></i>Staff Directory</h5>
+    <a href="{% url 'register' %}" class="btn btn-primary btn-sm rounded-pill fw-800 px-4">
+      <i class="bi bi-person-plus-fill me-1"></i> Add New Staff
+    </a>
+  </div>
+  <div class="hms-card">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="bg-light">
+            <tr class="small text-muted fw-700">
+              <th class="ps-4" style="width:40px;"></th>
+              <th>FULL NAME</th>
+              <th>USERNAME</th>
+              <th>ROLE</th>
+              <th>PHONE</th>
+              <th>JOINED</th>
+              {% if user.role == 'Admin' or user.is_superuser %}
+              <th class="text-end pe-4">ACTIONS</th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in recent_users %}
+            <tr>
+              <td class="ps-4">
+                {% if u.profile_photo %}
+                <img src="{{ u.profile_photo.url }}" style="width:34px;height:34px;border-radius:8px;object-fit:cover;" alt="Photo">
+                {% else %}
+                <div style="width:34px;height:34px;border-radius:8px;background:#eef2f7;display:flex;align-items:center;justify-content:center;">
+                  <i class="bi bi-person-fill text-primary" style="font-size:1rem;"></i>
+                </div>
+                {% endif %}
+              </td>
+              <td>
+                <div class="fw-800 text-dark">{{ u.get_full_name|default:u.username }}</div>
+                <div class="x-small text-muted">{{ u.email|default:"No email set" }}</div>
+              </td>
+              <td><span class="badge bg-light text-dark border fw-700">{{ u.username }}</span></td>
+              <td>
+                <span class="badge fw-700"
+                  style="background: {% if u.role == 'Admin' %}#1e3a5f{% elif u.role == 'Doctor' %}#1a6696{% elif u.role == 'Reception' %}#2980b9{% else %}#4a6fa5{% endif %}; color:#fff;">
+                  {{ u.role|default:"Staff" }}
+                </span>
+              </td>
+              <td class="small text-muted fw-600">{{ u.phone|default:"--" }}</td>
+              <td class="small text-muted fw-600">{{ u.created_at|date:"d M Y" }}</td>
+              {% if user.role == 'Admin' or user.is_superuser %}
+              <td class="text-end pe-4">
+                <div class="d-flex gap-2 justify-content-end">
+                  <a href="{% url 'edit_staff' u.pk %}" class="btn btn-sm btn-light border fw-800 rounded-pill px-3">
+                    <i class="bi bi-pencil-fill me-1 text-primary"></i> Edit
+                  </a>
+                  <form method="POST" action="{% url 'delete_staff' u.pk %}" onsubmit="return confirm('Delete {{ u.get_full_name|default:u.username }}? This cannot be undone.');" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-light border fw-800 rounded-pill px-3">
+                      <i class="bi bi-trash-fill me-1 text-danger"></i> Delete
+                    </button>
+                  </form>
+                </div>
+              </td>
+              {% endif %}
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-5">
+                <i class="bi bi-people fs-1 text-muted opacity-25"></i>
+                <p class="mt-3 text-muted fw-700">No staff members found.</p>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateClock() {
+    const clock = document.getElementById('live-clock');
+    const now = new Date();
+    clock.innerHTML = '<i class="bi bi-clock-history me-2"></i>' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // Charts Logic
+  const flowCtx = document.getElementById('flowChart').getContext('2d');
+  new Chart(flowCtx, {
+    type: 'bar',
+    data: {
+      labels: {{ chart_flow.labels | safe }},
+    datasets: [{
+      label: 'Patients',
+      data: {{ chart_flow.counts | safe }},
+    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+    borderRadius: 8,
+    barThickness: 20
+      }]
+    },
+    options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
+      x: { grid: { display: false } }
+    }
+  }
+  });
+
+  const revCtx = document.getElementById('revenueChart').getContext('2d');
+  new Chart(revCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Finance', 'Pharmacy', 'Labs'],
+      datasets: [{
+        data: [{{ monitor.total_revenue }}, 450000, 280000], // Mocked sub-data for visualization
+      backgroundColor: ['#0f172a', '#334155', '#475569'],
+      borderWidth: 0,
+      cutout: '70%'
+    }]
+  },
+    options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
+  }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% block title %}Personnel Management – HMS Pro{% endblock %}
+
+{% block extra_head %}
+<style>
+    .staff-container {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+    .directory-section {
+        flex: 1;
+        min-width: 0;
+    }
+    .onboarding-section {
+        width: 380px;
+        flex-shrink: 0;
+    }
+    @media (max-width: 1200px) {
+        .onboarding-section { width: 100%; }
+    }
+
+    /* Professional Table Styling */
+    .staff-table-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+    .table thead th {
+        background: #f8fafc;
+        color: #64748b;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 1.25rem 1rem;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    /* Identity Badge */
+    .staff-identity { display: flex; align-items: center; gap: 12px; }
+    .staff-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        object-fit: cover;
+        background: #f1f5f9;
+    }
+    .staff-role-badge {
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    /* Manual Form Card */
+    .onboard-card-manual {
+        background: #fff;
+        border-radius: 20px;
+        border: 1px solid rgba(0,0,0,0.05);
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+        position: sticky;
+        top: 90px;
+    }
+    .manual-label {
+        font-weight: 800;
+        font-size: 0.75rem;
+        color: #1e293b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        display: block;
+    }
+    .input-icon-group {
+        position: relative;
+        margin-bottom: 1.25rem;
+    }
+    .input-icon-group i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+    .manual-input {
+        width: 100%;
+        padding: 12px 15px 12px 45px;
+        border-radius: 12px;
+        border: 2px solid #f1f5f9;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        background: #f8fafc;
+    }
+    .manual-input:focus {
+        border-color: var(--hms-primary);
+        background: #fff;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(26,60,94,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+  <h4 class="fw-800 text-primary mb-0"><i class="bi bi-people-fill me-2"></i>Personnel Management</h4>
+</div>
+
+<div class="staff-container">
+    <!-- ═══ STAFF DIRECTORY (Left) ══════════════════════════════════════ -->
+    <div class="directory-section">
+        <div class="staff-table-card">
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light">
+                <span class="fw-700 text-dark fs-sm">Active Workforce</span>
+                <span class="badge bg-dark rounded-pill">{{ staff_list|length }} Professionals</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Identity</th>
+                            <th>Role / Dept</th>
+                            <th>Employee ID</th>
+                            <th>Duty Status</th>
+                            <th>Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in staff_list %}
+                        <tr>
+                            <td>
+                                <div class="staff-identity">
+                                    {% if s.profile_photo %}
+                                        <img src="{{ s.profile_photo.url }}" class="staff-avatar" alt="Avatar">
+                                    {% else %}
+                                        <div class="staff-avatar d-flex align-items-center justify-content-center">
+                                            <i class="bi bi-person text-muted"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-700 text-dark">{{ s.get_full_name|default:s.username }}</div>
+                                        <div class="text-muted fs-xs">{{ s.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="staff-role-badge bg-light text-dark border">{{ s.role }}</span>
+                                <div class="text-muted small mt-1">{{ s.department|default:"N/A" }}</div>
+                            </td>
+                            <td><code class="fw-700 text-dark">{{ s.employee_id|default:"----" }}</code></td>
+                            <td>
+                                {% if s.is_on_duty %}
+                                    <span class="text-success fw-700 fs-xs"><i class="bi bi-dot fs-4 align-middle"></i>ON DUTY</span>
+                                {% else %}
+                                    <span class="text-muted fw-700 fs-xs"><i class="bi bi-dot fs-4 align-middle"></i>OFF DUTY</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">{{ s.created_at|date:"M d, Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MANUAL ONBOARDING FORM (Right) ══════════════════════════════ -->
+    <div class="onboarding-section">
+        <div class="onboard-card-manual">
+            <h5 class="fw-800 text-dark mb-4"><i class="bi bi-shield-lock-fill text-secondary me-2"></i>Authorize Professional</h5>
+            
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="register_staff" value="1">
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="manual-label">First Name</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-person"></i>
+                            <input type="text" name="first_name" class="manual-input" placeholder="First Name" required>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label class="manual-label">Last Name</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-person"></i>
+                            <input type="text" name="last_name" class="manual-input" placeholder="Last Name" required>
+                        </div>
+                    </div>
+                </div>
+
+                <label class="manual-label">Official Username</label>
+                <div class="input-icon-group">
+                    <i class="bi bi-fingerprint"></i>
+                    <input type="text" name="username" class="manual-input" placeholder="Staff Username" required>
+                </div>
+
+                <label class="manual-label">Professional Role</label>
+                <div class="input-icon-group">
+                    <i class="bi bi-briefcase"></i>
+                    {{ reg_form.role }}
+                </div>
+
+                <label class="manual-label">Department / Unit</label>
+                <div class="input-icon-group">
+                    <i class="bi bi-building"></i>
+                    <input type="text" name="department" class="manual-input" placeholder="e.g. Cardiology">
+                </div>
+
+                <label class="manual-label">Profile Identity (Photo)</label>
+                <div class="input-icon-group">
+                    <i class="bi bi-camera"></i>
+                    <input type="file" name="profile_photo" class="manual-input" accept="image/*">
+                </div>
+
+                <div class="row g-2 mt-4">
+                    <div class="col-6">
+                        <label class="manual-label">Secure Pass</label>
+                        <input type="password" name="password1" class="manual-input ps-3" placeholder="Secret" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="manual-label">Confirm</label>
+                        <input type="password" name="password2" class="manual-input ps-3" placeholder="Confirm" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-dark w-100 fw-800 py-3 rounded-4 mt-4 shadow-sm">
+                    <i class="bi bi-check-circle-fill me-2"></i>Finalize Authorization
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Style the Django-rendered role select to match manual inputs
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.querySelector('select[name="role"]');
+        if (roleSelect) {
+            roleSelect.classList.add('manual-input');
+            roleSelect.classList.remove('form-select');
+        }
+    });
+</script>
+{% endblock %}

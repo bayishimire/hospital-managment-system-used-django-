@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }} – HMS Pro{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+            <h4 class="fw-800 text-primary mb-0"><i class="bi bi-file-earmark-pdf me-2"></i>Receipt Generator</h4>
+            <a href="{% url 'payments_dashboard' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-800">Back to Dashboard</a>
+        </div>
+
+        <div class="hms-card mb-4">
+            <div id="receipt-container" class="card-body p-5 bg-white text-dark shadow-sm">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-4 border-2">
+                    <div>
+                        <h3 class="fw-800 text-primary mb-0">HOSPITAL MAI</h3>
+                        <p class="text-muted small mb-0">123 Health Ave, Kigali City</p>
+                        <p class="text-muted small mb-0">Tel: +250 788 123 456</p>
+                    </div>
+                    <div class="text-end">
+                        <h2 class="fw-800 text-secondary mb-0">RECEIPT</h2>
+                        <p class="mb-0 fw-700">#REC-{{ payment.id|default:"1000" }}</p>
+                        <p class="text-muted small mb-0" id="receipt-date"></p>
+                    </div>
+                </div>
+
+                <!-- Patient Details -->
+                <div class="row mb-5">
+                    <div class="col-sm-6">
+                        <h6 class="text-muted fw-700 text-uppercase small mb-1">Billed To:</h6>
+                        <h5 class="fw-800 mb-0">{{ visit.patient.first_name }} {{ visit.patient.last_name }}</h5>
+                        <p class="mb-0">Fish ID: {{ visit.fish_id }}</p>
+                    </div>
+                    <div class="col-sm-6 text-end">
+                        <h6 class="text-muted fw-700 text-uppercase small mb-1">Payment Method:</h6>
+                        <h5 class="fw-800 mb-0">{{ payment.method|default:"N/A" }}</h5>
+                    </div>
+                </div>
+
+                <!-- Cost Details -->
+                <table class="table table-bordered border-opacity-25 mb-5">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Description</th>
+                            <th class="text-end">Amount (RWF)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Consultation, Laboratory, & Pharmacy Services</td>
+                            <td class="text-end fw-700">{{ payment.amount|default:"0.00" }}</td>
+                        </tr>
+                        <tr class="bg-light">
+                            <td class="text-end fw-800">TOTAL PAID:</td>
+                            <td class="text-end fw-800 text-primary fs-5">{{ payment.amount|default:"0.00" }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Signatures -->
+                <div class="row mt-5 pt-4">
+                    <div class="col-6">
+                        <p class="fw-700 mb-1">Authorized By:</p>
+                        <p class="text-muted pb-2 border-bottom border-dark border-opacity-25">{{ request.user.first_name|default:request.user.username }}</p>
+                    </div>
+                    <div class="col-6 text-end">
+                        <p class="fw-700 mb-1">Patient Signature:</p>
+                        <div id="signature-preview-container" class="border-bottom border-dark border-opacity-25 d-flex justify-content-end" style="height: 60px;">
+                            <img id="signature-preview" src="" style="max-height: 50px; display: none;" />
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-5">
+                    <p class="text-muted small border-top pt-3">Thank you for trusting Hospital MAI with your health.</p>
+                </div>
+            </div>
+            
+            <div class="card-footer bg-light p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-7">
+                        <h6 class="fw-800 mb-2">Digital Signature</h6>
+                        <div class="bg-white border rounded d-inline-block shadow-sm">
+                            <canvas id="signature-pad" width="300" height="100" style="touch-action: none; cursor: crosshair;"></canvas>
+                        </div>
+                        <div class="mt-2 text-start">
+                            <button class="btn btn-sm btn-outline-secondary px-3 rounded-pill" onclick="clearSignature()"><i class="bi bi-eraser me-1"></i>Clear Pad</button>
+                            <button class="btn btn-sm btn-primary px-3 rounded-pill" onclick="saveSignature()"><i class="bi bi-check me-1"></i>Apply Signature</button>
+                        </div>
+                    </div>
+                    <div class="col-md-5 text-end">
+                        <button class="btn btn-lg btn-success fw-800 shadow-sm rounded-pill hover-scale" onclick="downloadPDF()"><i class="bi bi-download me-2"></i>Download PDF</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include html2pdf.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+    // 1. Set current date & time on receipt
+    const dateEl = document.getElementById('receipt-date');
+    const now = new Date();
+    dateEl.textContent = now.toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+    // 2. Signature Pad functionality
+    const canvas = document.getElementById('signature-pad');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    
+    // Set up canvas for clean drawing lines
+    ctx.lineWidth = 2;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "#000000";
+
+    function getPosition(e) {
+        const rect = canvas.getBoundingClientRect();
+        // Handle touch or mouse event coordinates
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+            x: clientX - rect.left,
+            y: clientY - rect.top
+        };
+    }
+
+    function startDrawing(e) {
+        if (!e.touches) {} else { e.preventDefault(); }
+        isDrawing = true;
+        const pos = getPosition(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+        if (e.touches) e.preventDefault();
+        const pos = getPosition(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+    }
+
+    function stopDrawing() {
+        isDrawing = false;
+    }
+
+    // Mouse events
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+    
+    // Touch events for mobile/tablets
+    canvas.addEventListener('touchstart', startDrawing, {passive: false});
+    canvas.addEventListener('touchmove', draw, {passive: false});
+    canvas.addEventListener('touchend', stopDrawing);
+
+    function clearSignature() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        document.getElementById('signature-preview').style.display = 'none';
+        document.getElementById('signature-preview').src = '';
+    }
+
+    function saveSignature() {
+        const dataURL = canvas.toDataURL(); // Get image representation of drawing
+        const preview = document.getElementById('signature-preview');
+        preview.src = dataURL;
+        preview.style.display = 'block';
+    }
+
+    // 3. Generate PDF functionality
+    function downloadPDF() {
+        // Ensure signature is saved before printing
+        if (document.getElementById('signature-preview').style.display === 'none') {
+            saveSignature();
+        }
+
+        const element = document.getElementById('receipt-container');
+        const opt = {
+            margin:       0.5,
+            filename:     'Receipt_{{ visit.fish_id }}.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        // Trigger the download
+        html2pdf().set(opt).from(element).save();
+    }
+</script>
+{% endblock %}

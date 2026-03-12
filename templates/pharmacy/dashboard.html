@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% block title %}Pharmacy Dashboard – HMS Pro{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+  <h4 class="fw-800 text-primary mb-0"><i class="bi bi-capsule-pill me-2"></i>Pharmacy Dashboard</h4>
+  <span id="clock" style="display:none;"></span>
+</div>
+
+<!-- Pharmacy Stats -->
+<div class="row g-4 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(255,152,0,0.1); color:#ff9800;"><i class="bi bi-prescription2"></i></div>
+      <div><div class="stat-label">Pending Orders</div><div class="stat-value text-warning">{{ stats.pending_prescriptions }}</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card border-start border-success border-4">
+      <div class="stat-icon" style="background:rgba(0,200,83,0.1); color:#00c853;"><i class="bi bi-check2-all"></i></div>
+      <div><div class="stat-label">Dispensed Today</div><div class="stat-value text-success">{{ stats.dispensed_today }}</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(244,67,54,0.1); color:#f44336;"><i class="bi bi-fire"></i></div>
+      <div><div class="stat-label">Urgent Priority</div><div class="stat-value text-danger">{{ stats.urgent_orders }}</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(13,110,253,0.1); color:#0d6efd;"><i class="bi bi-box-seam"></i></div>
+      <div><div class="stat-label">Stock Items</div><div class="stat-value text-primary">{{ stats.total_items }}</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Prescription Queue -->
+<div class="hms-card">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <span class="fw-800"><i class="bi bi-list-stars me-2 text-warning"></i>Active Medication Queue</span>
+    <div class="d-flex gap-3">
+       <span class="badge bg-light text-dark border">Auto-Refresh: ON</span>
+       <span class="badge bg-warning text-dark shadow-sm">{{ queue.count }} Waiting</span>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead style="background:#f8f9fa;">
+          <tr class="small text-muted fw-700">
+            <th class="ps-3">Fish ID</th>
+            <th>Patient & Insurance</th>
+            <th>Prescribing Doctor</th>
+            <th>Priority</th>
+            <th class="text-end pe-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for visit in queue %}
+          <tr>
+            <td class="ps-3 fw-800 text-warning">{{ visit.fish_id }}</td>
+            <td>
+              <div class="fw-700">{{ visit.patient.first_name }} {{ visit.patient.last_name }}</div>
+              <small class="text-muted">
+                 {% if visit.patient.insurance_provider %}
+                    <i class="bi bi-shield-check text-success"></i> {{ visit.patient.insurance_provider }}
+                 {% else %}
+                    <i class="bi bi-cash text-muted"></i> Self-Pay
+                 {% endif %}
+              </small>
+            </td>
+            <td>
+              <div class="small fw-600 text-dark">Dr. {{ visit.assigned_doctor.get_full_name|default:visit.assigned_doctor.username }}</div>
+              <div class="text-muted" style="font-size:0.75rem;">Sent at {{ visit.updated_at|time }}</div>
+            </td>
+            <td>
+              {% if visit.priority == 'Emergency' %}
+                <span class="badge bg-danger shadow-sm">EMERGENCY</span>
+              {% elif visit.priority == 'Urgent' %}
+                <span class="badge bg-warning text-dark border-warning">URGENT</span>
+              {% else %}
+                <span class="badge bg-light text-dark border">Normal</span>
+              {% endif %}
+            </td>
+            <td class="text-end pe-3">
+              <a href="{% url 'dispense_medication' visit.fish_id %}" class="btn btn-warning btn-sm fw-800 px-4 shadow-sm border-0 rounded-pill">
+                Dispense <i class="bi bi-check2-circle ms-1"></i>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="py-5 text-center text-muted">
+              <div class="opacity-25 mb-2"><i class="bi bi-inbox fs-1"></i></div>
+              <p class="fw-600 mb-0">All prescriptions have been dispensed.</p>
+              <small>New medication orders will appear here automatically.</small>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mt-2">
+   <div class="col-md-4">
+      <div class="hms-card border-0 bg-light">
+         <div class="card-body p-4 text-center">
+            <i class="bi bi-shield-check text-success fs-1 mb-2"></i>
+            <h6 class="fw-800">Drug Safety Check</h6>
+            <p class="small text-muted">Always verify patient names and allergies before Handover.</p>
+         </div>
+      </div>
+   </div>
+   <div class="col-md-4">
+      <div class="hms-card border-0 bg-light">
+         <div class="card-body p-4 text-center">
+            <i class="bi bi-box-seam text-primary fs-1 mb-2"></i>
+            <h6 class="fw-800">Inventory Status</h6>
+            <p class="small text-muted">Stock update triggered every 4 hours.</p>
+         </div>
+      </div>
+   </div>
+   <div class="col-md-4">
+      <div class="hms-card border-0 bg-dark text-white">
+         <div class="card-body p-4 text-center">
+            <i class="bi bi-printer text-white fs-1 mb-2"></i>
+            <h6 class="fw-800">Print Labels</h6>
+            <p class="small text-white-50">Generate pharmaceutical labels for current queue.</p>
+         </div>
+      </div>
+   </div>
+</div>
+
+<style>
+  .fw-800 { font-weight: 800; }
+  .fw-700 { font-weight: 700; }
+  .fw-600 { font-weight: 600; }
+  .btn-warning { background-color: #ff9800; color: white; }
+  .btn-warning:hover { background-color: #f57c00; color: white; }
+</style>
+
+<script>
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }
+  setInterval(updateClock,1000); updateClock();
+</script>
+{% endblock %}

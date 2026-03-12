@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }} – Mission Control{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+    <h4 class="fw-800 text-primary mb-0"><i class="bi bi-person-vcard me-2"></i>{{ page_title }}</h4>
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-primary btn-sm rounded-pill fw-700">
+        <i class="bi bi-arrow-left me-1"></i> Dashboard
+    </a>
+</div>
+
+<div class="hms-card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr class="small text-muted fw-700">
+                        <th class="ps-4">PATIENT ID</th>
+                        <th>NAME</th>
+                        <th>GENDER</th>
+                        <th>PHONE</th>
+                        <th>INSURANCE</th>
+                        <th class="text-end pe-4">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in patients %}
+                    <tr>
+                        <td class="ps-4">
+                            <span class="badge bg-light text-dark border fw-800">{{ p.patient_id }}</span>
+                        </td>
+                        <td>
+                            <div class="fw-800 text-dark">{{ p.first_name }} {{ p.last_name }}</div>
+                            <div class="x-small text-muted">{{ p.address|truncatechars:30 }}</div>
+                        </td>
+                        <td class="fw-700">{{ p.gender }}</td>
+                        <td class="fw-700 text-secondary">{{ p.phone_number }}</td>
+                        <td>
+                            <div class="fw-700 small">{{ p.insurance_provider }}</div>
+                            <div class="x-small text-muted">Policy: {{ p.insurance_policy_number|default:"N/A" }}</div>
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'patient_edit' p.id %}" class="btn btn-sm btn-light border fw-800 rounded-pill px-3">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted fw-700">No patients registered.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

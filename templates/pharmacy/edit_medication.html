@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }} – Mission Control{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+    <h4 class="fw-800 text-primary mb-0"><i class="bi bi-capsule me-2"></i>{{ page_title }}</h4>
+    <a href="{% url 'pharmacy_monitor' %}" class="btn btn-outline-primary btn-sm rounded-pill fw-700">
+        <i class="bi bi-arrow-left me-1"></i> Back to Stock
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="hms-card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-800 small text-muted text-uppercase">Medication Name</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-800 small text-muted text-uppercase">Category</label>
+                            {{ form.category }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-800 small text-muted text-uppercase">Stock Quantity</label>
+                            {{ form.stock_quantity }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-800 small text-muted text-uppercase">Low Stock Threshold</label>
+                            {{ form.low_stock_threshold }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-800 small text-muted text-uppercase">Unit Price (RWF)</label>
+                            {{ form.unit_price }}
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-3 border-top">
+                        <button type="submit" class="btn btn-primary px-5 fw-800 rounded-pill">Update Stock Record</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

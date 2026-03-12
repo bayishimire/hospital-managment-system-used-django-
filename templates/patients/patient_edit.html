@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }} – Mission Control{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+    <h4 class="fw-800 text-primary mb-0"><i class="bi bi-pencil-square me-2"></i>{{ page_title }}</h4>
+    <a href="{% url 'patient_list' %}" class="btn btn-outline-primary btn-sm rounded-pill fw-700">
+        <i class="bi bi-arrow-left me-1"></i> Back to Directory
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="hms-card">
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row g-4">
+                        <!-- Personal Info -->
+                        <div class="col-md-12">
+                            <h6 class="fw-800 text-uppercase text-muted border-bottom pb-2 mb-4">Personal Identification</h6>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-700 small">First Name</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-700 small">Last Name</label>
+                            {{ form.last_name }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-700 small">Date of Birth</label>
+                            {{ form.date_of_birth }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-700 small">Gender</label>
+                            {{ form.gender }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-700 small">Phone Number</label>
+                            {{ form.phone_number }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-700 small">Email (Optional)</label>
+                            {{ form.email }}
+                        </div>
+                        
+                        <!-- Address -->
+                        <div class="col-md-12 mt-5">
+                            <h6 class="fw-800 text-uppercase text-muted border-bottom pb-2 mb-3">Residential Address</h6>
+                            {{ form.address }}
+                        </div>
+
+                        <!-- Insurance -->
+                        <div class="col-md-12 mt-5">
+                            <h6 class="fw-800 text-uppercase text-muted border-bottom pb-2 mb-3">Insurance Details</h6>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-700 small">Insurance Provider</label>
+                            {{ form.insurance_provider }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-700 small">Policy Number</label>
+                            {{ form.insurance_policy_number }}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-2">
+                                {{ form.is_insurance_verified }}
+                                <label class="form-check-label fw-700 ms-2">Insurance Records Verified</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mt-3">
+                            <label class="form-label fw-700 small">Verification Notes</label>
+                            {{ form.verification_notes }}
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-3 border-top d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-5 fw-800 rounded-pill">Update Records</button>
+                        <a href="{% url 'patient_list' %}" class="btn btn-light border px-4 fw-800 rounded-pill">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_modify %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    /* Premium Manual Bed Form Design */
+    .bed-manual-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    .custom-field-box {
+        background: #fff;
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 20px;
+        border: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+    }
+    .custom-field-box:focus-within {
+        border-color: #1565c0;
+        box-shadow: 0 8px 30px rgba(21, 101, 192, 0.08);
+    }
+    .field-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-right: 15px;
+    }
+    .field-label {
+        font-weight: 800;
+        font-size: 0.85rem;
+        color: #1a3c5e;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        display: block;
+    }
+    .manual-input {
+        width: 100%;
+        border: 2px solid #f0f0f0;
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-size: 1rem;
+        transition: all 0.2s;
+        background: #fafafa;
+    }
+    .manual-input:focus {
+        border-color: #1565c0;
+        background: #fff;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(21, 101, 192, 0.1);
+    }
+    .manual-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%231a3c5e' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+    }
+    .status-toggle {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px 18px;
+        border: 2px solid #f0f0f0;
+        border-radius: 12px;
+        background: #fafafa;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bed-manual-container">
+    <div class="d-flex align-items-center mb-4">
+        <div class="bg-info bg-opacity-10 p-3 rounded-4 me-3">
+            <i class="bi bi-door-open-fill text-info fs-3"></i>
+        </div>
+        <div>
+            <h2 class="fw-800 text-dark mb-1">{% if add %}Configure New Bed{% else %}Update Bed: {{ original }}{% endif %}</h2>
+            <p class="text-muted small mb-0">Assigning specific bedding units to hospital wards.</p>
+        </div>
+    </div>
+
+    <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>
+        {% csrf_token %}
+        {% block form_top %}{% endblock %}
+
+        {% if errors %}
+            <div class="alert alert-danger rounded-4 border-0 shadow-sm mb-4">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>Please correct the errors below.
+                {{ adminform.form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- Field: Ward -->
+        <div class="custom-field-box">
+            <div class="d-flex align-items-center mb-3">
+                <div class="field-icon bg-info-light text-info"><i class="bi bi-hospital-fill"></i></div>
+                <label class="field-label mb-0">Assigned Ward</label>
+            </div>
+            <select name="ward" class="manual-input manual-select" required>
+                <option value="" disabled {% if not adminform.form.ward.value %}selected{% endif %}>Target ward...</option>
+                {% for val, label in adminform.form.fields.ward.choices %}
+                    <option value="{{ val }}" {% if adminform.form.ward.value|stringformat:"s" == val|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            {% if adminform.form.ward.errors %}<small class="text-danger mt-2 d-block">{{ adminform.form.ward.errors.0 }}</small>{% endif %}
+        </div>
+
+        <!-- Field: Bed Number -->
+        <div class="custom-field-box">
+            <div class="d-flex align-items-center mb-3">
+                <div class="field-icon bg-blue-light text-primary"><i class="bi bi-hash"></i></div>
+                <label class="field-label mb-0">Bed Number / Code</label>
+            </div>
+            <input type="text" name="bed_number" value="{{ adminform.form.bed_number.value|default:'' }}" class="manual-input" placeholder="e.g. B-101, VIP-01" required>
+            {% if adminform.form.bed_number.errors %}<small class="text-danger mt-2 d-block">{{ adminform.form.bed_number.errors.0 }}</small>{% endif %}
+        </div>
+
+        <!-- Field: Is Occupied -->
+        <div class="custom-field-box">
+            <div class="d-flex align-items-center mb-3">
+                <div class="field-icon bg-warning-light text-warning"><i class="bi bi-toggle-on"></i></div>
+                <label class="field-label mb-0">Occupancy Status</label>
+            </div>
+            <div class="status-toggle">
+                <input type="checkbox" name="is_occupied" id="id_is_occupied" {% if adminform.form.is_occupied.value %}checked{% endif %} class="form-check-input">
+                <label for="id_is_occupied" class="mb-0 fw-600 text-muted">Mark as currently occupied</label>
+            </div>
+            {% if adminform.form.is_occupied.errors %}<small class="text-danger mt-2 d-block">{{ adminform.form.is_occupied.errors.0 }}</small>{% endif %}
+        </div>
+
+        {% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
+    </form>
+</div>
+{% endblock %}

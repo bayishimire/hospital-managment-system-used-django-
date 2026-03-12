@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Bed Management – HMS Pro{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+  <h4 class="fw-800 text-primary mb-0"><i class="bi bi-hospital me-2"></i>Bed Management</h4>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="stat-card shadow-sm border-0 bg-white">
+      <div class="stat-icon bg-primary bg-opacity-10 text-primary"><i class="bi bi-grid fs-3"></i></div>
+      <div>
+        <div class="stat-label">Total Beds</div>
+        <div class="stat-value text-primary fs-3">{{ stats.total_beds }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card shadow-sm border-0 bg-white">
+      <div class="stat-icon" style="background:rgba(233,8,210,0.1); color:#e908d2;"><i class="bi bi-person-bed fs-3"></i></div>
+      <div>
+        <div class="stat-label">Occupied</div>
+        <div class="stat-value text-danger fs-3">{{ stats.occupied_beds }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card shadow-sm border-0 bg-white">
+      <div class="stat-icon bg-success bg-opacity-10 text-success"><i class="bi bi-check-circle fs-3"></i></div>
+      <div>
+        <div class="stat-label">Available</div>
+        <div class="stat-value text-success fs-3">{{ stats.available_beds }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="hms-card border-0 shadow-sm mb-4">
+  <div class="card-header bg-white py-3 border-bottom">
+    <h5 class="fw-800 text-dark mb-0"><i class="bi bi-person-lines-fill me-2 text-primary"></i>Admitted Patients</h5>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr class="small text-muted fw-700">
+            <th class="ps-4">PATIENT NAME</th>
+            <th>WARD / DEPARTMENT</th>
+            <th>BED SLOT</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for bed in beds %}
+          {% if bed.is_occupied %}
+          <tr>
+            <td class="ps-4 fw-800">{{ bed.current_patient.first_name }} {{ bed.current_patient.last_name }}</td>
+            <td><span class="badge bg-light text-dark border">{{ bed.ward.name }}</span> <small class="text-muted ms-2">{{ bed.ward.ward_type }}</small></td>
+            <td class="fw-bold fs-5 text-primary">{{ bed.bed_number }}</td>
+            <td><span class="badge" style="background-color: #e908d2;">Occupied</span></td>
+          </tr>
+          {% endif %}
+          {% empty %}
+          <tr><td colspan="4" class="text-center py-5 text-muted"><div class="opacity-25 mb-3"><i class="bi bi-slash-circle fs-1"></i></div><div class="h6 fw-800">No Beds Found</div></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

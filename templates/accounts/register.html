@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% block title %}Register Professional – HMS Pro{% endblock %}
+
+{% block extra_head %}
+<style>
+    .register-wrapper {
+        min-height: calc(100vh - 160px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 0;
+    }
+    .register-card-manual {
+        max-width: 900px;
+        width: 100%;
+        background: #fff;
+        border-radius: 30px;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.06);
+        overflow: hidden;
+        display: flex;
+    }
+    
+    .register-sidebar {
+        width: 320px;
+        background: linear-gradient(135deg, #1a3c5e 0%, #0d2137 100%);
+        padding: 50px 40px;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .register-main {
+        flex: 1;
+        padding: 50px;
+    }
+
+    @media (max-width: 850px) {
+        .register-card-manual { flex-direction: column; }
+        .register-sidebar { width: 100%; padding: 40px; }
+    }
+
+    .manual-label {
+        font-weight: 800;
+        font-size: 0.72rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+        display: block;
+    }
+    .input-icon-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    .input-icon-group i {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.1rem;
+        color: #94a3b8;
+        transition: color 0.2s;
+    }
+    .manual-input {
+        width: 100%;
+        padding: 14px 18px 14px 52px;
+        border-radius: 14px;
+        border: 2px solid #f1f5f9;
+        font-size: 1rem;
+        transition: all 0.2s;
+        background: #f8fafc;
+        color: #1e293b;
+    }
+    .manual-input:focus {
+        border-color: #1a3c5e;
+        background: #fff;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(26,60,94,0.1);
+    }
+    .manual-input:focus + i {
+        color: #1a3c5e;
+    }
+    
+    .hms-btn-onboard {
+        background: #1a3c5e;
+        color: #fff;
+        border: none;
+        padding: 16px 32px;
+        border-radius: 16px;
+        font-weight: 800;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+        box-shadow: 0 10px 20px rgba(26,60,94,0.2);
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+    .hms-btn-onboard:hover {
+        background: #234d7a;
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(26,60,94,0.3);
+    }
+    .hms-btn-onboard:active {
+        transform: translateY(0);
+    }
+
+    /* Status Indicator */
+    .role-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-wrapper">
+    <div class="register-card-manual scale-in">
+        <!-- Sidebar Branding -->
+        <div class="register-sidebar">
+            <div>
+                <div class="role-indicator">
+                    <i class="bi bi-shield-check"></i>
+                    ADMIN CONTROL
+                </div>
+                <h2 class="fw-900 mb-3" style="line-height: 1.2;">Authorize New Professional</h2>
+                <p class="text-white opacity-70 small">Onboard healthcare providers, surgeons, and administrative staff into the HMS Pro clinical ecosystem.</p>
+            </div>
+            
+            <div class="mt-auto">
+                <hr class="border-white opacity-20">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-white bg-opacity-10 p-2 rounded-circle">
+                        <i class="bi bi-fingerprint fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="small fw-700">IDENTITY SECURED</div>
+                        <div class="text-white opacity-50 x-small" style="font-size: 0.65rem;">ENCRYPTED CREDENTIALS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Form Area -->
+        <div class="register-main">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} rounded-4 border-0 shadow-sm mb-4">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if reg_form.non_field_errors %}
+                <div class="alert alert-danger rounded-4 border-0 shadow-sm mb-4">
+                    {% for error in reg_form.non_field_errors %}
+                        <div><i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Row 1: Names -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="manual-label">First Name</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-person"></i>
+                            <input type="text" name="first_name" class="manual-input {% if reg_form.first_name.errors %}is-invalid{% endif %}" placeholder="Official First Name" value="{{ reg_form.first_name.value|default:'' }}" required>
+                            {% if reg_form.first_name.errors %}
+                                <div class="invalid-feedback fw-700 small">{{ reg_form.first_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="manual-label">Last Name</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-person"></i>
+                            <input type="text" name="last_name" class="manual-input {% if reg_form.last_name.errors %}is-invalid{% endif %}" placeholder="Official Last Name" value="{{ reg_form.last_name.value|default:'' }}" required>
+                            {% if reg_form.last_name.errors %}
+                                <div class="invalid-feedback fw-700 small">{{ reg_form.last_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Creds -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="manual-label">Secure Username</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-at"></i>
+                            <input type="text" name="username" class="manual-input {% if reg_form.username.errors %}is-invalid{% endif %}" placeholder="Professional ID" value="{{ reg_form.username.value|default:'' }}" required>
+                            {% if reg_form.username.errors %}
+                                <div class="invalid-feedback fw-700 small">{{ reg_form.username.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="manual-label">Email Address</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-envelope"></i>
+                            <input type="email" name="email" class="manual-input {% if reg_form.email.errors %}is-invalid{% endif %}" placeholder="Staff Email" value="{{ reg_form.email.value|default:'' }}" required>
+                            {% if reg_form.email.errors %}
+                                <div class="invalid-feedback fw-700 small">{{ reg_form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Role & Dept -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="manual-label">Designated Role</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-briefcase"></i>
+                            {{ reg_form.role }}
+                            {% if reg_form.role.errors %}
+                                <div class="text-danger fw-700 x-small mt-1">{{ reg_form.role.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="manual-label">Hospital Department</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-building"></i>
+                            <input type="text" name="department" class="manual-input {% if reg_form.department.errors %}is-invalid{% endif %}" placeholder="e.g. Clinical Care" value="{{ reg_form.department.value|default:'' }}">
+                            {% if reg_form.department.errors %}
+                                <div class="invalid-feedback fw-700 small">{{ reg_form.department.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 4: Identity Photo -->
+                <label class="manual-label">Profile Visualization (Optional)</label>
+                <div class="input-icon-group">
+                    <i class="bi bi-camera"></i>
+                    <input type="file" name="profile_photo" class="manual-input {% if reg_form.profile_photo.errors %}is-invalid{% endif %}" accept="image/*">
+                    {% if reg_form.profile_photo.errors %}
+                        <div class="invalid-feedback fw-700 small">{{ reg_form.profile_photo.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Row 5: Passwords -->
+                <div class="row g-3 mt-1">
+                    <div class="col-md-6">
+                        <label class="manual-label">Authorization Code</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-lock"></i>
+                            <input type="password" name="password1" class="manual-input {% if reg_form.password1.errors %}is-invalid{% endif %}" placeholder="Create Secret" required>
+                            {% if reg_form.password1.errors %}
+                                <div class="invalid-feedback fw-700 small">{{ reg_form.password1.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="manual-label">Verify Code</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-check2-circle"></i>
+                            <input type="password" name="password2" class="manual-input {% if reg_form.password2.errors %}is-invalid{% endif %}" placeholder="Confirm Secret" required>
+                            {% if reg_form.password2.errors %}
+                                <div class="invalid-feedback fw-700 small">{{ reg_form.password2.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="hms-btn-onboard">
+                        <i class="bi bi-check-lg"></i>
+                        Register Account
+                    </button>
+                    <a href="{% url 'staff_management' %}" class="btn btn-link w-100 mt-3 text-muted fw-700 text-decoration-none small">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Directory
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Style the Django-rendered role select
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.querySelector('select[name="role"]');
+        if (roleSelect) {
+            roleSelect.classList.add('manual-input');
+            roleSelect.classList.remove('form-select');
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }} – HMS Pro{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+    <h4 class="fw-800 text-primary mb-0"><i class="bi bi-bar-chart-fill me-2"></i>Daily Revenue Report</h4>
+    <a href="{% url 'payments_dashboard' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-800">Back to Dashboard</a>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-4">
+        <div class="stat-card mb-4" style="background: linear-gradient(135deg, #1e3a5f, #2c5282); border: none;">
+            <div class="stat-icon bg-white text-primary" style="opacity: 0.9;"><i class="bi bi-wallet2"></i></div>
+            <div>
+                <div class="stat-label text-white opacity-75">Total Daily Revenue</div>
+                <div class="stat-value text-white" style="font-size: 2rem;">RWF {{ total_rev }}</div>
+            </div>
+        </div>
+        <div class="hms-card">
+            <div class="card-body p-4 text-center">
+                <i class="bi bi-printer text-muted fs-1 mb-2"></i>
+                <h6 class="fw-800 text-secondary">Export Statement</h6>
+                <p class="small text-muted mb-3">Download today's full financial statement in PDF format.</p>
+                <button class="btn btn-primary w-100 rounded-pill fw-800" onclick="window.print()"><i class="bi bi-file-earmark-pdf me-2"></i>Print Report</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="hms-card h-100">
+            <div class="card-header"><i class="bi bi-list-check me-2 text-primary"></i>Today's Processed Transactions</div>
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background:#f8f9fa;">
+                        <tr class="small text-muted">
+                            <th class="ps-4">Time</th>
+                            <th>Patient / Fish ID</th>
+                            <th>Method</th>
+                            <th class="text-end pe-4">Amount (RWF)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pay in payments %}
+                        <tr>
+                            <td class="ps-4 text-muted small">{{ pay.created_at|time:"H:i A" }}</td>
+                            <td>
+                                <div class="fw-800 text-dark">{{ pay.visit.patient.first_name }} {{ pay.visit.patient.last_name }}</div>
+                                <div class="small text-muted">{{ pay.visit.fish_id }}</div>
+                            </td>
+                            <td>
+                                {% if pay.method == 'Insurance' %}
+                                    <span class="badge bg-info text-white"><i class="bi bi-shield-check me-1"></i>Insurance</span>
+                                {% elif pay.method == 'Cash' %}
+                                    <span class="badge bg-success text-white"><i class="bi bi-cash me-1"></i>Cash</span>
+                                {% else %}
+                                    <span class="badge bg-secondary text-white">{{ pay.method }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                <span class="fw-800 text-primary me-3">{{ pay.amount }}</span>
+                                <a href="{% url 'print_receipt' pay.visit.fish_id %}" class="btn btn-sm btn-outline-secondary py-0 px-2" title="Print Receipt"><i class="bi bi-printer"></i></a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <i class="bi bi-inbox text-muted fs-1 opacity-25 d-block mb-3"></i>
+                                <h6 class="fw-800 text-muted">No transactions recorded today.</h6>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

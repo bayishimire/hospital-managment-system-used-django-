@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }} – Mission Control{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+    <h4 class="fw-800 text-primary mb-0"><i class="bi bi-microscope me-2"></i>{{ page_title }}</h4>
+    <a href="{% url 'lab_monitor' %}" class="btn btn-outline-primary btn-sm rounded-pill fw-700">
+        <i class="bi bi-arrow-left me-1"></i> Back to Monitor
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="hms-card">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4 text-center">
+                        <span class="badge bg-light text-primary border border-primary border-opacity-25 p-2 px-3 fs-6">
+                            Fish ID: {{ order.visit.fish_id }}
+                        </span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-800 small text-muted">Laboratory Test Name</label>
+                        {{ form.test_name }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-800 small text-muted">Specific Instructions</label>
+                        {{ form.instructions }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-800 small text-muted">Test Status</label>
+                        {{ form.status }}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-800 small text-muted">Diagnostic Results</label>
+                        {{ form.results }}
+                    </div>
+
+                    <div class="pt-3 border-top">
+                        <button type="submit" class="btn btn-primary w-100 fw-800 rounded-pill py-2">Save Audit Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

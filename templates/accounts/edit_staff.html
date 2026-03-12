@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }} – Mission Control{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+    <h4 class="fw-800 text-primary mb-0"><i class="bi bi-person-gear me-2"></i>{{ page_title }}</h4>
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-primary btn-sm rounded-pill fw-700">
+        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="hms-card">
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row g-4">
+                        <!-- Avatar preview -->
+                        <div class="col-12 text-center">
+                            {% if staff.profile_photo %}
+                            <img src="{{ staff.profile_photo.url }}" style="width:80px;height:80px;border-radius:16px;object-fit:cover;border:3px solid #d0e3f5;" alt="Photo">
+                            {% else %}
+                            <div style="width:80px;height:80px;border-radius:16px;background:#eef2f7;display:flex;align-items:center;justify-content:center;margin:0 auto;border:3px solid #d0e3f5;">
+                                <i class="bi bi-person-fill text-primary fs-2"></i>
+                            </div>
+                            {% endif %}
+                            <div class="mt-2">
+                                <label class="form-label fw-800 small text-muted text-uppercase">Update Photo</label>
+                                <input type="file" name="profile_photo" class="form-control form-control-sm" accept="image/*">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-800 small text-muted text-uppercase"><i class="bi bi-person-fill me-1 text-primary"></i> First Name</label>
+                            <input type="text" name="first_name" class="form-control" value="{{ staff.first_name }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-800 small text-muted text-uppercase"><i class="bi bi-person-fill me-1 text-primary"></i> Last Name</label>
+                            <input type="text" name="last_name" class="form-control" value="{{ staff.last_name }}">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-800 small text-muted text-uppercase"><i class="bi bi-telephone-fill me-1 text-primary"></i> Phone</label>
+                            <input type="text" name="phone" class="form-control" value="{{ staff.phone|default:'' }}">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-800 small text-muted text-uppercase"><i class="bi bi-briefcase-fill me-1 text-primary"></i> Role</label>
+                            <select name="role" class="form-select">
+                                {% for choice in role_choices %}
+                                <option value="{{ choice }}" {% if staff.role == choice %}selected{% endif %}>{{ choice }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-800 small text-muted text-uppercase"><i class="bi bi-at me-1 text-primary"></i> Username</label>
+                            <input type="text" class="form-control bg-light" value="{{ staff.username }}" readonly disabled>
+                            <small class="text-muted">Username cannot be changed</small>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-3 border-top d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-5 fw-800 rounded-pill">
+                            <i class="bi bi-check-circle me-1"></i> Save Changes
+                        </button>
+                        <a href="{% url 'admin_dashboard' %}" class="btn btn-light border px-4 fw-800 rounded-pill">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

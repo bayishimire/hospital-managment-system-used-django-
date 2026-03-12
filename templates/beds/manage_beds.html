@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }} – Mission Control{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+    <h4 class="fw-800 text-primary mb-0"><i class="bi bi-door-open-fill me-2"></i>{{ page_title }}</h4>
+    <div class="d-flex gap-2">
+        <button class="btn btn-primary btn-sm rounded-pill fw-700 px-3" data-bs-toggle="modal" data-bs-target="#addWardModal">
+            <i class="bi bi-plus-lg me-1"></i> Add Ward
+        </button>
+        <button class="btn btn-info btn-sm rounded-pill fw-700 px-3 text-white" data-bs-toggle="modal" data-bs-target="#addBedModal">
+            <i class="bi bi-plus-lg me-1"></i> Add Bed
+        </button>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-primary btn-sm rounded-pill fw-700">
+            <i class="bi bi-arrow-left me-1"></i> Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Wards Section -->
+<div class="hms-card mb-4">
+    <div class="card-header bg-light border-0 py-3">
+        <span class="fw-800 fs-6 text-dark"><i class="bi bi-building me-2"></i>Hospital Wards</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr class="small text-muted fw-700">
+                        <th class="ps-4">WARD NAME</th>
+                        <th>TYPE</th>
+                        <th>CAPACITY</th>
+                        <th>MANAGER</th>
+                        <th class="text-end pe-4">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ward in wards %}
+                    <tr>
+                        <td class="ps-4 fw-800 text-dark">{{ ward.name }}</td>
+                        <td><span class="badge bg-soft-primary text-primary fw-700">{{ ward.ward_type }}</span></td>
+                        <td class="fw-700 text-secondary">{{ ward.capacity }} Beds</td>
+                        <td><div class="small fw-600 text-muted">{{ ward.manager.get_full_name|default:"Not Assigned" }}</div></td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'edit_ward' ward.id %}" class="btn btn-sm btn-light border rounded-pill">Edit</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center py-4 text-muted">No wards registered.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Beds Section -->
+<div class="hms-card">
+    <div class="card-header bg-light border-0 py-3">
+        <span class="fw-800 fs-6 text-dark"><i class="bi bi-luggage me-2"></i>Hospital Beds</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr class="small text-muted fw-700">
+                        <th class="ps-4">BED NUMBER</th>
+                        <th>WARD</th>
+                        <th>STATUS</th>
+                        <th>CURRENT PATIENT</th>
+                        <th class="text-end pe-4">ACTION</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bed in beds %}
+                    <tr>
+                        <td class="ps-4">
+                            <span class="badge bg-light text-primary border border-primary border-opacity-25 fw-800">{{ bed.bed_number }}</span>
+                        </td>
+                        <td class="fw-700">{{ bed.ward.name }}</td>
+                        <td>
+                            {% if bed.is_occupied %}
+                                <span class="badge bg-danger fw-800">OCCUPIED</span>
+                            {% else %}
+                                <span class="badge bg-success fw-800">AVAILABLE</span>
+                            {% endif %}
+                        </td>
+                        <td class="small fw-600 text-muted">
+                            {{ bed.current_patient.get_full_name|default:"--" }}
+                        </td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'edit_bed' bed.id %}" class="btn btn-sm btn-light border rounded-pill">Edit</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center py-4 text-muted">No beds registered.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add Ward Modal -->
+<div class="modal fade" id="addWardModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-900 text-primary">Add New Ward</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="add_ward" value="1">
+                <div class="modal-body">
+                    <div class="mb-3">{{ ward_form.name.label_tag }}{{ ward_form.name }}</div>
+                    <div class="mb-3">{{ ward_form.ward_type.label_tag }}{{ ward_form.ward_type }}</div>
+                    <div class="mb-3">{{ ward_form.capacity.label_tag }}{{ ward_form.capacity }}</div>
+                    <div class="mb-3">{{ ward_form.manager.label_tag }}{{ ward_form.manager }}</div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-primary w-100 fw-800 rounded-pill py-2">Create Ward</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add Bed Modal -->
+<div class="modal fade" id="addBedModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-900 text-info">Register New Bed</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="add_bed" value="1">
+                <div class="modal-body">
+                    <div class="mb-3">{{ bed_form.ward.label_tag }}{{ bed_form.ward }}</div>
+                    <div class="mb-3">{{ bed_form.bed_number.label_tag }}{{ bed_form.bed_number }}</div>
+                    <div class="form-check form-switch mb-3">
+                        {{ bed_form.is_occupied }}
+                        <label class="form-check-label fw-700 ms-2">Mark as Occupied</label>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="submit" class="btn btn-info text-white w-100 fw-800 rounded-pill py-2">Register Bed</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-soft-primary { background-color: rgba(33, 150, 243, 0.1); }
+</style>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+  <h4 class="fw-800 text-primary mb-0"><i class="bi bi-search me-2"></i>Patient Search</h4>
+  <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline-primary btn-sm rounded-pill fw-700">Back to Portal</a>
+</div>
+<div class="hms-card">
+  <div class="card-body">
+    <form method="GET" class="mb-4">
+      <div class="input-group">
+        <input type="text" name="q" class="form-control form-control-lg bg-light border-0" placeholder="Search by name, Fish ID or Patient ID..." value="{{ query|default:'' }}">
+        <button class="btn btn-primary px-4 fw-800" type="submit">Search</button>
+      </div>
+    </form>
+    
+    {% if query %}
+      <h6 class="fw-800 mb-3">Search Results for "{{ query }}"</h6>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="bg-light">
+            <tr class="small text-muted fw-700">
+              <th>FISH ID</th>
+              <th>NAME</th>
+              <th>PRIORITY</th>
+              <th>STATUS</th>
+              <th>CREATED</th>
+              <th class="text-end">ACTION</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for visit in results %}
+              <tr>
+                <td><span class="badge bg-light text-primary border">{{ visit.fish_id }}</span></td>
+                <td class="fw-700">{{ visit.patient.first_name }} {{ visit.patient.last_name }}</td>
+                <td>{{ visit.priority }}</td>
+                <td>{{ visit.status }}</td>
+                <td>{{ visit.created_at|date:"M d, Y" }}</td>
+                <td class="text-end">
+                  <a href="{% url 'start_treatment' visit.fish_id %}" class="btn btn-sm btn-primary rounded-pill fw-700">View File</a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="6" class="text-center py-4 text-muted">No records found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

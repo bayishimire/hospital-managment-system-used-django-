@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+{% block body_class %}no-sidebar{% endblock %}
+{% block title %}Login – HMS Pro{% endblock %}
+
+{% block extra_head %}
+<style>
+  body.no-sidebar {
+    background: url('/static/images/hospital_modern_hero_1773190923431.png') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  body.no-sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(13, 33, 55, 0.7);
+    /* Deep navy overlay */
+    z-index: 1;
+  }
+
+  .login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    /* Move back to left */
+    padding: 2rem 10%;
+    /* Space from left edge */
+    position: relative;
+    z-index: 10;
+  }
+
+  .login-card {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(15px);
+    border-radius: 3000px; /*hereeeeeeeeee */
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+    width: 100%;
+    max-width: 390px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: fadeInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-50px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .login-header {
+    background: linear-gradient(135deg, #1a3c5e, #1565c0);
+    padding: 2.5rem 2rem;
+    text-align: center;
+    color: #fff;
+    position: relative;
+  }
+
+  .login-header .logo-icon {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    margin: 0 auto 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    transition: transform 0.3s ease;
+  }
+
+  .login-card:hover .logo-icon {
+    transform: rotate(10deg);
+  }
+
+  .login-header h3 {
+    font-weight: 900;
+    margin: 0;
+    font-size: 1.6rem;
+    letter-spacing: -0.5px;
+  }
+
+  .login-header p {
+    opacity: .85;
+    margin: .4rem 0 0;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .login-body {
+    padding: 2.5rem 2rem;
+  }
+
+  .login-description {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+
+  .input-group-text {
+    background: #0a63bc;
+    border-color: hsl(327, 90%, 48%);
+    color: #f63bbb;
+    border-radius: 12px 0 0 12px;
+  }
+
+  .form-control {
+    border-color: #e2e8f0;
+    border-radius: 0 12px 12px 0;
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .form-control:focus {
+    box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.1);
+    border-color: #2196f3;
+  }
+
+  .btn-login {
+    background: #1a3c5e;
+    border: none;
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.95rem;
+    padding: 1rem;
+    border-radius: 15px;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(26, 60, 94, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .btn-login:hover {
+    background: linear-gradient(135deg, #2196f3, #00bcd4);
+    /* Colorful hover */
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(33, 150, 243, 0.4);
+    color: #fff;
+  }
+
+  .role-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+
+  .role-pill {
+    font-size: 0.65rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 50px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-weight: 700;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="logo-icon"><i class="bi bi-hospital-fill"></i></div>
+      <h3>HMS<span style="color:#90caf9;">Pro</span></h3>
+      <p>Authorized Staff Access Only</p>
+    </div>
+    <div class="login-body">
+
+      <div class="login-description mb-4">
+        <i class="bi bi-info-circle me-1"></i>
+        Secure clinical portal for hospital staff. If you are a new employee, please contact HR for your unique
+        credentials.
+      </div>
+
+      <!-- Login As... Guidance -->
+      <div class="mb-4">
+        <label class="form-label fw-800 fs-xs text-uppercase text-primary letter-spacing-1 mb-2">Login as...</label>
+        <div class="role-pills">
+          <span class="role-pill"><i class="bi bi-person-badge"></i> Receptionist</span>
+          <span class="role-pill"><i class="bi bi-clipboard-pulse"></i> Doctor</span>
+          <span class="role-pill"><i class="bi bi-eyedropper"></i> Laboratory</span>
+          <span class="role-pill"><i class="bi bi-capsule"></i> Pharmacy</span>
+        </div>
+      </div>
+
+      <form method="post" autocomplete="off">
+        {% csrf_token %}
+        <!-- Username -->
+        <div class="mb-3">
+          <label class="form-label fw-700 small text-muted text-uppercase"
+            style="font-size: 0.65rem; letter-spacing: 0.5px;">Staff Username</label>
+          <div class="input-group shadow-sm">
+            <span class="input-group-text"><i class="bi bi-person-circle"></i></span>
+            {{ form.username }}
+          </div>
+        </div>
+        <!-- Password -->
+        <div class="mb-4">
+          <label class="form-label fw-700 small text-muted text-uppercase"
+            style="font-size: 0.65rem; letter-spacing: 0.5px;">Staff Password</label>
+          <div class="input-group shadow-sm">
+            <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+            {{ form.password }}
+            <button class="btn btn-outline-light border text-muted" type="button" onclick="togglePwd()" id="toggleBtn"
+              style="background: #f8fafc;">
+              <i class="bi bi-eye-fill" id="eyeIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger py-2 small border-0 shadow-sm mb-4">
+          <i class="bi bi-exclamation-circle-fill me-2"></i>{{ form.non_field_errors.0 }}
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-login">
+          <span>Authenticate</span>
+          <i class="bi bi-arrow-right-circle-fill"></i>
+        </button>
+      </form>
+
+      <div class="text-center mt-4">
+        <a href="{% url 'home' %}" class="text-muted small text-decoration-none fw-600">
+          <i class="bi bi-house-door-fill me-1"></i> Return Home
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block extra_js %}
+<script>
+  function togglePwd() {
+    const input = document.getElementById('password');
+    const icon = document.getElementById('eyeIcon');
+    if (input.type === 'password') { input.type = 'text'; icon.className = 'bi bi-eye-slash-fill'; }
+    else { input.type = 'password'; icon.className = 'bi bi-eye-fill'; }
+  }
+</script>
+{% endblock %}

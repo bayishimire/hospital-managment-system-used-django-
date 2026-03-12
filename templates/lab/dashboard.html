@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% block title %}Laboratory Dashboard – HMS Pro{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+  <h4 class="fw-800 text-primary mb-0"><i class="bi bi-eyedropper me-2"></i>Laboratory Dashboard</h4>
+  <span id="clock" style="display:none;"></span>
+</div>
+
+<!-- Stat Bar -->
+<div class="row g-4 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(13,110,253,0.1); color:#0d6efd;"><i class="bi bi-hourglass-split"></i></div>
+      <div><div class="stat-label">Pending Tests</div><div class="stat-value text-primary">{{ stats.pending_tests }}</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card border-start border-danger border-4">
+      <div class="stat-icon" style="background:rgba(244,67,54,0.1); color:#f44336;"><i class="bi bi-exclamation-triangle"></i></div>
+      <div><div class="stat-label">Urgent Orders</div><div class="stat-value text-danger">{{ stats.urgent_tests }}</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(0,200,83,0.1); color:#00c853;"><i class="bi bi-check-circle"></i></div>
+      <div><div class="stat-label">Completed Today</div><div class="stat-value text-success">{{ stats.completed_today }}</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(13,110,253,0.1); color:#0d6efd;"><i class="bi bi-activity"></i></div>
+      <div><div class="stat-label">Total Processed</div><div class="stat-value text-primary">{{ stats.total_processed }}</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Lab Queue -->
+<div class="hms-card">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <span class="fw-800"><i class="bi bi-funnel-fill me-2 text-primary"></i>Active Lab Diagnostic Queue</span>
+    <span class="badge bg-primary px-3 shadow-sm">{{ queue.count }} Waiting</span>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead style="background:#f8f9fa;">
+          <tr class="small text-muted fw-700">
+            <th class="ps-3">Fish ID</th>
+            <th>Patient Details</th>
+            <th>Assigned Doctor</th>
+            <th>Priority</th>
+            <th class="text-end pe-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for visit in queue %}
+          <tr>
+            <td class="ps-3 fw-800 text-primary">{{ visit.fish_id }}</td>
+            <td>
+              <div class="fw-700">{{ visit.patient.first_name }} {{ visit.patient.last_name }}</div>
+              <small class="text-muted">{{ visit.patient.gender }} | {{ visit.patient.patient_id }}</small>
+            </td>
+            <td>
+              <div class="small fw-600 text-dark">Dr. {{ visit.assigned_doctor.get_full_name|default:visit.assigned_doctor.username }}</div>
+              <div class="text-muted" style="font-size:0.75rem;">{{ visit.department }}</div>
+            </td>
+            <td>
+              {% if visit.priority == 'Emergency' %}
+                <span class="badge bg-danger shadow-sm">EMERGENCY</span>
+              {% elif visit.priority == 'Urgent' %}
+                <span class="badge bg-warning text-dark border-warning">URGENT</span>
+              {% else %}
+                <span class="badge bg-light text-dark border">Normal</span>
+              {% endif %}
+            </td>
+            <td class="text-end pe-3">
+              <a href="{% url 'complete_lab' visit.fish_id %}" class="btn btn-primary btn-sm fw-700 px-3 py-1 shadow-sm rounded-pill">
+                Collect & Process <i class="bi bi-arrow-right ms-1"></i>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="py-5 text-center text-muted">
+              <div class="opacity-25 mb-2"><i class="bi bi-clipboard2-minus fs-1"></i></div>
+              <p class="fw-600 mb-0">No pending diagnostic tests.</p>
+              <small>New orders from doctors will appear here in real-time.</small>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mt-1">
+  <div class="col-md-6">
+    <div class="hms-card bg-light border-0">
+      <div class="card-body p-4">
+        <h6 class="fw-800 text-primary mb-3"><i class="bi bi-info-circle me-2"></i>Lab Procedure</h6>
+        <p class="small text-muted mb-3">When a patient arrives in the lab, verify their <strong>Fish ID</strong> against their hospital bracelet/card before sample collection.</p>
+        <div class="d-flex align-items-center gap-4">
+          <div class="text-center">
+            <div class="bg-white rounded p-2 mb-1 border shadow-xs"><i class="bi bi-droplet-fill text-danger fs-4"></i></div>
+            <small class="fw-600">Blood</small>
+          </div>
+          <div class="text-center">
+            <div class="bg-white rounded p-2 mb-1 border shadow-xs"><i class="bi bi-clipboard-pulse text-info fs-4"></i></div>
+            <small class="fw-600">Pathology</small>
+          </div>
+          <div class="text-center">
+            <div class="bg-white rounded p-2 mb-1 border shadow-xs"><i class="bi bi-radioactive text-warning fs-4"></i></div>
+            <small class="fw-600">Radiology</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="hms-card bg-gradient-dark border-0">
+      <div class="card-body p-4 text-white">
+        <h6 class="fw-800 mb-3"><i class="bi bi-lightning-fill me-2 text-warning"></i>Quick Reports</h6>
+        <div class="list-group list-group-flush bg-transparent">
+          <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-white border-opacity-10 py-2 small ps-0 fw-500">
+            <i class="bi bi-file-earmark-pdf me-2"></i>Download Daily Log
+          </a>
+          <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-white border-opacity-10 py-2 small ps-0 fw-500">
+            <i class="bi bi-gear-fill me-2"></i>Equipment Maintenance
+          </a>
+          <a href="#" class="list-group-item list-group-item-action bg-transparent text-white border-0 py-2 small ps-0 fw-500">
+            <i class="bi bi-box-seam me-2"></i>Lab Supply Requisition
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .bg-gradient-dark { background: linear-gradient(135deg, #212529 0%, #343a40 100%); }
+  .shadow-xs { box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+  .fw-800 { font-weight: 800; }
+  .fw-700 { font-weight: 700; }
+  .fw-600 { font-weight: 600; }
+  .fw-500 { font-weight: 500; }
+</style>
+
+<script>
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }
+  setInterval(updateClock,1000); updateClock();
+</script>
+{% endblock %}

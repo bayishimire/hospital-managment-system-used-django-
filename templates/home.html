@@ -1,0 +1,447 @@
+{% extends 'base.html' %}
+{% block body_class %}no-sidebar{% endblock %}
+{% block title %}HMS Pro – Premium Hospital Management System{% endblock %}
+
+{% block extra_head %}
+<style>
+  body.no-sidebar { background: #ffffff; }
+  
+  /* --- Premium Hero Section --- */
+  .hero-v2 {
+    min-height: 90vh;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    padding: 6rem 0 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hero-v2::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.03) 0%, rgba(0, 188, 212, 0.05) 100%);
+    border-radius: 100% 0 0 100%;
+    z-index: 0;
+  }
+
+  .hero-content-v2 { position: relative; z-index: 10; }
+  
+  .hero-tagline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #e3f2fd;
+    color: #1976d2;
+    padding: 0.5rem 1.25rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.5px;
+    border: 1px solid #bbdefb;
+  }
+
+  .hero-v2 h1 {
+    font-size: 4rem;
+    font-weight: 900;
+    color: #1a3c5e;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -1px;
+  }
+  
+  .hero-v2 h1 span {
+    background: linear-gradient(135deg, #2196f3, #00bcd4);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-v2 p {
+    font-size: 1.2rem;
+    color: #4a5568;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+  }
+
+  .hero-image-container {
+    position: relative;
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    border: 8px solid white;
+  }
+  
+  .hero-image-container img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+  
+  .hero-image-container:hover img {
+    transform: scale(1.05);
+  }
+
+  /* --- Floating Mini Cards for UX --- */
+  .floating-card {
+    position: absolute;
+    background: white;
+    padding: 1rem;
+    border-radius: 16px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: float 4s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .fc-1 { top: 15%; left: -40px; }
+  .fc-2 { bottom: 10%; right: 20px; animation-delay: 1s; }
+
+  /* --- Dashboard Portals --- */
+  .hms-section-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1a3c5e;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .section-subtitle {
+    text-align: center;
+    color: #718096;
+    margin-bottom: 4rem;
+    font-size: 1.1rem;
+  }
+
+  .portal-card-v2 {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    border: 1px solid #edf2f7;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .portal-card-v2:hover {
+    transform: translateY(-10px);
+    border-color: #2196f3;
+    box-shadow: 0 30px 60px -12px rgba(33, 150, 243, 0.15);
+  }
+  
+  .portal-icon-box {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2.2rem;
+    transition: all 0.3s ease;
+  }
+  
+  .portal-card-v2:hover .portal-icon-box {
+    transform: rotate(10deg) scale(1.1);
+  }
+
+  /* --- Features Section --- */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 4rem;
+  }
+  
+  .feature-card-v2 {
+    display: flex;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: #f8fafc;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+  }
+  
+  .feature-card-v2:hover {
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  }
+
+  .f-icon-v2 {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  /* --- CTA Section --- */
+  .cta-v2 {
+    background: linear-gradient(135deg, #1a3c5e 0%, #0d2137 100%);
+    border-radius: 40px;
+    padding: 5rem 2rem;
+    margin: 4rem auto;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* --- Global Reset --- */
+  .btn-premium {
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .btn-primary-p {
+    background: linear-gradient(135deg, #2196f3, #00bcd4);
+    color: white;
+    border: none;
+    box-shadow: 0 10px 20px rgba(33, 150, 243, 0.3);
+  }
+  
+  .btn-primary-p:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 30px rgba(33, 150, 243, 0.4);
+    color: white;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ═══ PREMIUM HERO ════════════════════════════════════════════════════════ -->
+<section class="hero-v2">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <!-- Left Content -->
+      <div class="col-lg-6 hero-content-v2">
+        <div class="hero-tagline">
+          <i class="bi bi-shield-fill-check"></i> Smart Healthcare Management
+        </div>
+        <h1>Powering the <span>Future of Medicine</span></h1>
+        <p>Experience the most integrated, reliable, and user-friendly hospital management system. HMS Pro connects doctors, staff, and patients in a single, seamless digital ecosystem.</p>
+        
+        <div class="d-flex gap-3 flex-wrap">
+          <a href="{% url 'login' %}" class="btn btn-premium btn-primary-p">
+            <i class="bi bi-box-arrow-in-right"></i> Staff Login Portal
+          </a>
+        </div>
+        
+        <div class="mt-5 d-flex gap-5 align-items-center opacity-75">
+          <div>
+            <h4 class="mb-0 fw-800 text-primary">500+</h4>
+            <small class="text-muted fw-600 text-uppercase" style="font-size: 0.7rem;">Hospital Beds</small>
+          </div>
+          <div style="width: 1px; height: 30px; background: #cbd5e0;"></div>
+          <div>
+            <h4 class="mb-0 fw-800 text-success">120+</h4>
+            <small class="text-muted fw-600 text-uppercase" style="font-size: 0.7rem;">Specialists</small>
+          </div>
+          <div style="width: 1px; height: 30px; background: #cbd5e0;"></div>
+          <div>
+            <h4 class="mb-0 fw-800 text-info">24/7</h4>
+            <small class="text-muted fw-600 text-uppercase" style="font-size: 0.7rem;">Active Support</small>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Image -->
+      <div class="col-lg-6">
+        <div class="position-relative">
+          <div class="hero-image-container">
+            <img src="/static/images/hospital_modern_hero_1773190923431.png" alt="Modern Healthcare">
+          </div>
+          
+          <!-- UX Floating Cards -->
+          <div class="floating-card fc-1">
+            <div style="background: #e3f2fd; color: #2196f3; padding: 0.5rem; border-radius: 10px;">
+              <i class="bi bi-activity"></i>
+            </div>
+            <div>
+              <div class="fw-800 small">Live Tracking</div>
+              <div class="text-muted" style="font-size: 0.65rem;">Updated Just Now</div>
+            </div>
+          </div>
+          
+          <div class="floating-card fc-2">
+            <div style="background: #e6fffa; color: #38b2ac; padding: 0.5rem; border-radius: 10px;">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div>
+              <div class="fw-800 small">ISO Certified</div>
+              <div class="text-muted" style="font-size: 0.65rem;">Security Standard</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DEPARTMENT GATEWAYS ════════════════════════════════════════════════ -->
+<section style="padding: 6rem 0; background: #ffffff;">
+  <div class="container">
+    <h2 class="hms-section-title">Department Gateway</h2>
+    <p class="section-subtitle">A secure environment tailored for every hospital role.</p>
+    
+    <div class="row g-4 justify-content-center">
+      <!-- Reception -->
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="portal-card-v2">
+          <div class="portal-icon-box" style="background: #e3f2fd; color: #2196f3;">
+            <i class="bi bi-reception-4"></i>
+          </div>
+          <h6 class="fw-800">Reception</h6>
+          <p class="small">Front Desk & Queue</p>
+        </div>
+      </div>
+      
+      <!-- Doctor -->
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="portal-card-v2">
+          <div class="portal-icon-box" style="background: #e6fffa; color: #38b2ac;">
+            <i class="bi bi-person-badge-fill"></i>
+          </div>
+          <h6 class="fw-800">Doctor</h6>
+          <p class="small">Diagnosis & Files</p>
+        </div>
+      </div>
+      
+      <!-- Laboratory -->
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="portal-card-v2">
+          <div class="portal-icon-box" style="background: #faf5ff; color: #9c27b0;">
+            <i class="bi bi-eyedropper"></i>
+          </div>
+          <h6 class="fw-800">Laboratory</h6>
+          <p class="small">Test Results</p>
+        </div>
+      </div>
+      
+      <!-- Pharmacy -->
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="portal-card-v2">
+          <div class="portal-icon-box" style="background: #fffaf0; color: #ed8936;">
+            <i class="bi bi-capsule-pill"></i>
+          </div>
+          <h6 class="fw-800">Pharmacy</h6>
+          <p class="small">Drug Dispensing</p>
+        </div>
+      </div>
+      
+      <!-- Payments -->
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="portal-card-v2">
+          <div class="portal-icon-box" style="background: #e6fffa; color: #00bcd4;">
+            <i class="bi bi-credit-card-fill"></i>
+          </div>
+          <h6 class="fw-800">Finance</h6>
+          <p class="small">Billing & Insurance</p>
+        </div>
+      </div>
+      
+      <!-- Admin -->
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="portal-card-v2">
+          <div class="portal-icon-box" style="background: #fff5f5; color: #f56565;">
+            <i class="bi bi-speedometer2"></i>
+          </div>
+          <h6 class="fw-800">Mission Control</h6>
+          <p class="small">Full Oversight</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ WHY CHOOSE US ══════════════════════════════════════════════════════ -->
+<section style="padding: 6rem 0; background: #f8fafc; border-radius: 60px 60px 0 0;">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-5">
+        <h2 class="fw-900" style="font-size: 2.8rem; color: #1a3c5e; line-height: 1.2;">Why Modern Hospitals Choose <span class="text-primary">HMS Pro</span></h2>
+        <p class="text-muted mt-3 mb-5">Seamlessly integrating every aspect of hospital life into one powerful, intelligent platform.</p>
+        
+        <a href="{% url 'login' %}" class="btn btn-premium btn-primary-p mb-5">
+          Experience the Difference
+        </a>
+      </div>
+      
+      <div class="col-lg-7">
+        <div class="feature-grid">
+          <div class="feature-card-v2">
+            <div class="f-icon-v2" style="background: #e3f2fd; color: #2196f3;"><i class="bi bi-shield-lock-fill"></i></div>
+            <div>
+              <h6 class="fw-800 mb-2">Military-Grade Security</h6>
+              <p class="small text-muted m-0">End-to-end encryption for all patient data and communication.</p>
+            </div>
+          </div>
+          
+          <div class="feature-card-v2">
+            <div class="f-icon-v2" style="background: #e6fffa; color: #38b2ac;"><i class="bi bi-bell-fill"></i></div>
+            <div>
+              <h6 class="fw-800 mb-2">Automated Notifications</h6>
+              <p class="small text-muted m-0">Instant alerts for doctors when patient test results arrive.</p>
+            </div>
+          </div>
+          
+          <div class="feature-card-v2">
+            <div class="f-icon-v2" style="background: #faf5ff; color: #9c27b0;"><i class="bi bi-journals"></i></div>
+            <div>
+              <h6 class="fw-800 mb-2">Digital Records</h6>
+              <p class="small text-muted m-0">Say goodbye to paper. Every file is digital, searchable, and secure.</p>
+            </div>
+          </div>
+          
+          <div class="feature-card-v2">
+            <div class="f-icon-v2" style="background: #fffaf0; color: #ed8936;"><i class="bi bi-graph-up-arrow"></i></div>
+            <div>
+              <h6 class="fw-800 mb-2">Advanced Analytics</h6>
+              <p class="small text-muted m-0">Comprehensive data insights for better decision reporting.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FINAL CTA ══════════════════════════════════════════════════════════ -->
+<div class="container py-5">
+  <div class="cta-v2">
+    <h2 class="fw-900 mb-3" style="font-size: 3rem;">Ready to upgrade your hospital?</h2>
+    <p class="mb-4 mx-auto" style="max-width: 600px; opacity: 0.85; font-size: 1.1rem;">Join thousands of healthcare professionals who have streamlined their workflow with HMS Pro.</p>
+    <a href="{% url 'login' %}" class="btn btn-premium btn-light text-primary">
+      Access Staff Portal Now
+    </a>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ════════════════════════════════════════════════════════════ -->
+{% include 'includes/footer.html' %}
+{% endblock %}

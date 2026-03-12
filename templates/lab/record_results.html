@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Record Results: {{ visit.patient.first_name }} – HMS Pro{% endblock %}
+
+{% block content %}
+<div class="page-header" style="background: linear-gradient(135deg, #1565c0 0%, #1e88e5 100%);">
+  <div class="d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-3">
+      <div class="bg-white bg-opacity-10 rounded-circle p-3 border border-white border-opacity-25">
+        <i class="bi bi-microscope fs-2 text-white"></i>
+      </div>
+      <div>
+        <h2 class="fw-800 mb-0">Record Test Results</h2>
+        <p class="mb-0 opacity-75">{{ visit.patient.first_name }} {{ visit.patient.last_name }} &mdash; Fish ID: {{ visit.fish_id }}</p>
+      </div>
+    </div>
+    <a href="{% url 'lab_dashboard' %}" class="btn btn-outline-light btn-sm fw-700 px-3"><i class="bi bi-arrow-left me-1"></i>Back</a>
+  </div>
+</div>
+
+<div class="row g-4 mt-2 justify-content-center">
+  <div class="col-lg-7">
+    <div class="hms-card border-0 shadow-lg overflow-hidden" style="border-radius:16px;">
+      <div class="card-header bg-dark text-white p-4">
+        <h5 class="fw-800 mb-0"><i class="bi bi-card-checklist me-2 text-info"></i>Diagnostic Findings</h5>
+      </div>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="card-body p-4 bg-white">
+          <div class="alert alert-warning border-0 py-2 small mb-4">
+             <i class="bi bi-exclamation-triangle-fill me-2"></i>Ensure all values are double-checked before final submission.
+          </div>
+          
+          <div class="mb-4">
+            <label class="form-label fw-800 text-dark">Ordered Tests</label>
+            <div class="p-3 bg-light rounded border-start border-4 border-primary">
+              <div class="fw-700">{{ visit.department }} Panel</div>
+              <small class="text-muted">Ordered by Dr. {{ visit.assigned_doctor.get_full_name|default:visit.assigned_doctor.username }}</small>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-800 text-dark">Observations / Findings</label>
+            <textarea name="results" class="form-control" rows="8" placeholder="Enter clinical laboratory findings, cell counts, chemical values, etc..." required></textarea>
+          </div>
+
+          <div class="mb-0">
+             <label class="form-label fw-800 text-dark">Conclusion</label>
+             <select name="status_conclusion" class="form-select">
+                <option value="Normal">Normal Values</option>
+                <option value="Abnormal">Abnormal Findings</option>
+                <option value="Critical">Critical Alert</option>
+             </select>
+          </div>
+        </div>
+        <div class="card-footer bg-light p-4 d-flex justify-content-end gap-3">
+          <button type="button" class="btn btn-light fw-700 px-4" onclick="history.back()">Cancel</button>
+          <button type="submit" class="btn btn-primary fw-800 px-5 shadow-sm">
+            Finalize & Send to Doctor <i class="bi bi-send-fill ms-2"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-5 col-xl-4">
+     <div class="hms-card border-0 shadow-sm bg-info bg-opacity-10" style="border-radius:16px;">
+        <div class="card-body p-4 text-info-emphasis">
+           <h6 class="fw-800 mb-3"><i class="bi bi-person-lines-fill me-2"></i>Technician's Note</h6>
+           <p class="small mb-4">Submitting this form will automatically update the patient's status and alert the referring physician. The <strong>Patient Fish</strong> digital record will be updated in real-time.</p>
+           
+           <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="bg-info bg-opacity-20 p-2 rounded"><i class="bi bi-shield-check fs-4"></i></div>
+              <div class="small fw-700">ISO 9001 Certified Procedures</div>
+           </div>
+           <div class="d-flex align-items-center gap-3">
+              <div class="bg-info bg-opacity-20 p-2 rounded"><i class="bi bi-clock-history fs-4"></i></div>
+              <div class="small fw-700">Last calibration: Today, 08:00 AM</div>
+           </div>
+        </div>
+     </div>
+  </div>
+</div>
+
+<style>
+  .fw-800 { font-weight: 800; }
+  .fw-700 { font-weight: 700; }
+  .form-control:focus, .form-select:focus { border-color: #0d47a1; box-shadow: 0 0 0 0.25rem rgba(13, 71, 161, 0.1); }
+</style>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }} – Mission Control{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+    <h4 class="fw-800 text-primary mb-0"><i class="bi bi-cash-stack me-2"></i>{{ page_title }}</h4>
+    <a href="{% url 'finance_monitor' %}" class="btn btn-outline-primary btn-sm rounded-pill fw-700">
+        <i class="bi bi-arrow-left me-1"></i> Back to Audit
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="hms-card">
+            <div class="card-body p-4 text-center">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <div class="small fw-800 text-muted text-uppercase mb-1">Assigned Visit</div>
+                        {{ form.visit }}
+                    </div>
+                    
+                    <div class="row g-3 mb-4 text-start">
+                        <div class="col-md-6">
+                            <label class="form-label fw-800 small text-muted">Amount (RWF)</label>
+                            {{ form.amount }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-800 small text-muted">Payment Method</label>
+                            {{ form.method }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-800 small text-muted">Transaction Status</label>
+                            {{ form.status }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-800 small text-muted">Collected By</label>
+                            {{ form.collected_by }}
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-top">
+                        <button type="submit" class="btn btn-primary w-100 fw-800 rounded-pill py-2">Update Payment Records</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

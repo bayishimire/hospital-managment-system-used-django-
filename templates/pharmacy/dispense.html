@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Dispense Medication: {{ visit.patient.first_name }} – HMS Pro{% endblock %}
+
+{% block content %}
+<div class="page-header" style="background: linear-gradient(135deg, #e65100 0%, #ff9800 100%);">
+  <div class="d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-3">
+      <div class="bg-white bg-opacity-10 rounded-circle p-3 border border-white border-opacity-25">
+        <i class="bi bi-capsule fs-2 text-white"></i>
+      </div>
+      <div>
+        <h2 class="fw-800 mb-0">Dispense Medication</h2>
+        <p class="mb-0 opacity-75">{{ visit.patient.first_name }} {{ visit.patient.last_name }} &mdash; Fish ID: {{ visit.fish_id }}</p>
+      </div>
+    </div>
+    <a href="{% url 'pharmacy_dashboard' %}" class="btn btn-outline-light btn-sm fw-700 px-3"><i class="bi bi-arrow-left me-1"></i>Back</a>
+  </div>
+</div>
+
+<div class="row g-4 mt-2 justify-content-center">
+  <div class="col-lg-7">
+    <div class="hms-card border-0 shadow-lg overflow-hidden" style="border-radius:16px;">
+      <div class="card-header bg-dark text-white p-4 d-flex justify-content-between align-items-center">
+        <h5 class="fw-800 mb-0"><i class="bi bi-prescription2 me-2 text-warning"></i>Pharmaceutical Dispensing</h5>
+        <span class="badge bg-warning text-dark">{{ visit.priority }}</span>
+      </div>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="card-body p-4 bg-white">
+          <div class="alert alert-info border-0 py-2 small mb-4">
+             <i class="bi bi-info-circle-fill me-2"></i>Verify patient identity and drug dosage against the digital prescription below.
+          </div>
+          
+          <div class="mb-4">
+            <label class="form-label fw-800 text-dark">Prescription Details</label>
+            <div class="p-4 bg-light rounded border-start border-4 border-warning">
+              <div class="fw-700 mb-2">Prescribed by Dr. {{ visit.assigned_doctor.get_full_name|default:visit.assigned_doctor.username }}</div>
+              <div class="small text-muted mb-3">Department: {{ visit.department }}</div>
+              
+              <div class="text-dark bg-white p-3 border rounded">
+                 <div class="fw-800 text-primary mb-1">Medication Order:</div>
+                 <p class="mb-0">Please refer to the clinical notes for specific drug instructions. Handover the prescribed regimen once verified.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-0">
+             <label class="form-label fw-800 text-dark">Dispensing Confirmation</label>
+             <div class="form-check p-3 bg-light rounded border mb-2">
+                <input class="form-check-input ms-0 me-3" type="checkbox" id="check1" required>
+                <label class="form-check-label fw-600" for="check1">I have verified the patient's identity (Fish ID: {{ visit.fish_id }})</label>
+             </div>
+             <div class="form-check p-3 bg-light rounded border mb-2">
+                <input class="form-check-input ms-0 me-3" type="checkbox" id="check2" required>
+                <label class="form-check-label fw-600" for="check2">Medication dosage and instructions explained to patient</label>
+             </div>
+             <div class="form-check p-3 bg-light rounded border">
+                <input class="form-check-input ms-0 me-3" type="checkbox" id="check3" required>
+                <label class="form-check-label fw-600" for="check3">Patient confirmed understanding of therapy</label>
+             </div>
+          </div>
+        </div>
+        <div class="card-footer bg-light p-4 d-flex justify-content-end gap-3">
+          <button type="button" class="btn btn-light fw-700 px-4" onclick="history.back()">Cancel</button>
+          <button type="submit" class="btn btn-warning fw-800 px-5 shadow-sm text-white">
+            Dispense & Discharge <i class="bi bi-box-arrow-right ms-2"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-5 col-xl-4">
+     <div class="hms-card border-0 shadow-sm bg-warning bg-opacity-10" style="border-radius:16px;">
+        <div class="card-body p-4 text-warning-emphasis">
+           <h6 class="fw-800 mb-3"><i class="bi bi-shield-lock me-2"></i>Pharmacist Protocol</h6>
+           <p class="small mb-4">Finalizing this transaction will mark the <strong>Patient Fish</strong> as <strong>Discharged</strong>. This record will then be archived in the Patient Records system.</p>
+           
+           <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="bg-warning bg-opacity-20 p-2 rounded text-warning"><i class="bi bi-qr-code-scan fs-4"></i></div>
+              <div class="small fw-700">Scan batch code if required</div>
+           </div>
+           <div class="d-flex align-items-center gap-3">
+              <div class="bg-warning bg-opacity-20 p-2 rounded text-warning"><i class="bi bi-clock-history fs-4"></i></div>
+              <div class="small fw-700">Next inventory audit: 18:00 PM</div>
+           </div>
+        </div>
+     </div>
+  </div>
+</div>
+
+<style>
+  .fw-800 { font-weight: 800; }
+  .fw-700 { font-weight: 700; }
+  .form-check-input:checked { background-color: #ff9800; border-color: #ff9800; }
+</style>
+{% endblock %}

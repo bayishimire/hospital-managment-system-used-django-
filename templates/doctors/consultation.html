@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Clinical Intake Header -->
+<div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom border-primary border-opacity-25 mt-2">
+    <div class="d-flex align-items-center gap-3">
+      {% if patient.profile_photo %}
+        <img src="{{ patient.profile_photo.url }}" class="rounded-circle border border-primary border-2 shadow-sm" width="50" height="50" style="object-fit:cover;">
+      {% else %}
+        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center border border-primary border-opacity-25 shadow-sm" style="width:50px;height:50px;">
+          <i class="bi bi-person-fill fs-3"></i>
+        </div>
+      {% endif %}
+      <div>
+        <h4 class="fw-800 text-primary mb-0">{{ patient.get_full_name }} <span class="badge bg-primary bg-opacity-10 text-primary ms-2 fs-6">{{ visit.fish_id }}</span></h4>
+        <small class="text-muted fw-600">
+          {{ patient.gender }} | {{ patient.age|default:"28" }}Y | <i class="bi bi-geo-alt-fill me-1"></i>{{ patient.address|default:"Kigali, Rwanda" }}
+        </small>
+      </div>
+    </div>
+    
+    <div class="d-flex gap-2">
+      <form method="POST" class="d-inline">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="set_urgent">
+        <button type="submit" class="btn btn-warning rounded-pill fw-800 px-3 shadow-sm transition-base">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i>URGENT
+        </button>
+      </form>
+      <a href="{% url 'doctor_dashboard' %}" class="btn btn-primary rounded-pill fw-800 px-3 shadow-sm transition-base">
+        <i class="bi bi-arrow-left me-1"></i>EXIT FILE
+      </a>
+    </div>
+</div>
+
+<div class="container-fluid py-4">
+  <div class="row g-4">
+    <!-- Left Column: Clinical Capture -->
+    <div class="col-lg-7">
+      <div class="hms-card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3 border-bottom d-flex align-items-center">
+          <i class="bi bi-clipboard2-pulse-fill me-2 text-primary fs-4"></i>
+          <h5 class="mb-0 fw-800 text-dark">Consultation & Diagnosis</h5>
+        </div>
+        <div class="card-body p-4">
+          <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="save_notes">
+            
+            <!-- Vitals Row -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-4">
+                <label class="form-label fw-800 small text-muted text-uppercase">Blood Pressure</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-0"><i class="bi bi-heart-pulse text-danger"></i></span>
+                  {{ form.blood_pressure }}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-800 small text-muted text-uppercase">Temperature</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-0"><i class="bi bi-thermometer-half text-warning"></i></span>
+                  {{ form.temperature }}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-800 small text-muted text-uppercase">Heart Rate</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-0"><i class="bi bi-activity text-primary"></i></span>
+                  {{ form.heart_rate }}
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-800 small text-muted text-uppercase">Reported Symptoms</label>
+              {{ form.symptoms }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-800 small text-muted text-uppercase">Professional Diagnosis</label>
+              {{ form.diagnosis }}
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-800 small text-muted text-uppercase">Treatment & Recovery Plan</label>
+              {{ form.treatment_plan }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-800 shadow hover-up">
+              <i class="bi bi-cloud-check-fill me-2"></i>SAVE CLINICAL NOTES
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Lab & Pharmacy History -->
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="hms-card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+              <span class="fw-800 text-dark small"><i class="bi bi-microscope me-2 text-info"></i>LAB ORDERS</span>
+              <span class="badge bg-info bg-opacity-10 text-info rounded-pill">{{ lab_orders.count }}</span>
+            </div>
+            <div class="card-body p-3">
+              {% for order in lab_orders %}
+                <div class="p-2 mb-2 border-start border-info border-3 bg-light rounded-end">
+                  <div class="fw-700 small">{{ order.test_name }}</div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="x-small text-muted">{{ order.created_at|date:"M d, H:i" }}</span>
+                    <span class="badge bg-white text-info border border-info border-opacity-25 x-small">{{ order.status }}</span>
+                  </div>
+                </div>
+              {% empty %}
+                <div class="text-center py-4 text-muted opacity-50">
+                  <i class="bi bi-slash-circle mb-2 d-block fs-3"></i>
+                  <small class="fw-600">No active lab orders</small>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="hms-card border-0 shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+              <span class="fw-800 text-dark small"><i class="bi bi-capsule me-2 text-secondary"></i>PRESCRIPTIONS</span>
+              <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill">{{ prescriptions.count }}</span>
+            </div>
+            <div class="card-body p-3">
+              {% for rx in prescriptions %}
+                <div class="p-2 mb-2 border-start border-secondary border-3 bg-light rounded-end">
+                  <div class="fw-700 small">{{ rx.medication_name }}</div>
+                  <div class="d-flex gap-2 x-small text-muted mt-1">
+                    <span><i class="bi bi-droplet-fill me-1"></i>{{ rx.dosage }}</span>
+                    <span><i class="bi bi-clock-history me-1"></i>{{ rx.frequency }}</span>
+                  </div>
+                </div>
+              {% empty %}
+                <div class="text-center py-4 text-muted opacity-50">
+                  <i class="bi bi-slash-circle mb-2 d-block fs-3"></i>
+                  <small class="fw-600">No active prescriptions</small>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Clinical Routing -->
+    <div class="col-lg-5">
+      <!-- Routing Engine -->
+      <div class="hms-card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3 border-bottom">
+          <h5 class="mb-0 fw-800 text-dark"><i class="bi bi-diagram-3-fill me-2 text-warning"></i>Routing Engine</h5>
+        </div>
+        <div class="card-body p-4">
+          
+          <!-- Tabbed Routing -->
+          <ul class="nav nav-pills nav-fill bg-light p-1 rounded-pill mb-4" id="routingTab" role="tablist">
+            <li class="nav-item">
+              <button class="nav-link active rounded-pill fw-800 small" data-bs-toggle="tab" data-bs-target="#labTab">
+                <i class="bi bi-microscope me-2"></i>LAB
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link rounded-pill fw-800 small" data-bs-toggle="tab" data-bs-target="#rxTab">
+                <i class="bi bi-capsule me-2"></i>RX
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link rounded-pill fw-800 small" data-bs-toggle="tab" data-bs-target="#wardTab">
+                <i class="bi bi-hospital me-2"></i>WARD
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <!-- Lab Orders -->
+            <div class="tab-pane fade show active" id="labTab">
+              <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create_lab_order">
+                <div class="mb-3">
+                  <label class="form-label fw-700 small">Select Test Type</label>
+                  <select name="test_name" class="form-select rounded-3 p-3">
+                    <option value="Complete Blood Count (CBC)">Complete Blood Count (CBC)</option>
+                    <option value="Malaria Rapid Diagnostic Test">Malaria RDT</option>
+                    <option value="Urinalysis">Urinalysis</option>
+                    <option value="Glucose Level">Glucose Level</option>
+                    <option value="Liver Function Test">Liver Function Test</option>
+                    <option value="Chest X-Ray Order">Chest X-Ray Order</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-info w-100 rounded-pill fw-800 py-3 text-white shadow-sm hover-up">
+                  <i class="bi bi-send-fill me-2"></i>AUTHORIZE LAB ORDER
+                </button>
+              </form>
+            </div>
+
+            <!-- Prescriptions -->
+            <div class="tab-pane fade" id="rxTab">
+              <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="create_prescription">
+                <div class="mb-3">
+                  <input type="text" name="med_name" class="form-control rounded-3 p-3 mb-2" placeholder="Medication Name" required>
+                  <div class="row g-2">
+                    <div class="col-6"><input type="text" name="dosage" class="form-control rounded-3 p-3" placeholder="Dosage (e.g. 500mg)"></div>
+                    <div class="col-6"><input type="text" name="freq" class="form-control rounded-3 p-3" placeholder="Frequency (e.g. 2x Daily)"></div>
+                  </div>
+                  <input type="text" name="dur" class="form-control rounded-3 p-3 mt-2" placeholder="Duration (e.g. 7 Days)">
+                </div>
+                <button type="submit" class="btn btn-primary w-100 rounded-pill fw-800 py-3 shadow-sm hover-up">
+                  <i class="bi bi-pen-fill me-2"></i>AUTHORIZE PRESCRIPTION
+                </button>
+              </form>
+            </div>
+
+            <!-- Admission -->
+            <div class="tab-pane fade" id="wardTab">
+              <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="admit_patient">
+                <div class="mb-3">
+                  <label class="form-label fw-700 small">Available Bed Assignment</label>
+                  <select name="bed_id" class="form-select rounded-3 p-3">
+                    {% for bed in available_beds %}
+                      <option value="{{ bed.id }}">{{ bed.ward.name }} - Bed {{ bed.bed_number }} ({{ bed.ward.ward_type }})</option>
+                    {% empty %}
+                      <option disabled>NO BEDS AVAILABLE</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-secondary w-100 rounded-pill fw-800 py-3 text-white shadow-sm hover-up">
+                  <i class="bi bi-hospital-fill me-2"></i>AUTHORIZE ADMISSION
+                </button>
+              </form>
+            </div>
+          </div>
+          <hr class="my-4 opacity-10">
+          <div class="d-grid">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="forward_billing">
+                <button type="submit" class="btn btn-success btn-lg rounded-pill fw-800 py-3 shadow-sm hover-up w-100">
+                    <i class="bi bi-currency-dollar me-2"></i>FORWARD TO BILLING UNIT
+                </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Patient Bio -->
+      <div class="hms-card border-0 shadow-sm bg-light">
+          <div class="card-body p-4">
+              <h6 class="fw-800 text-dark mb-3">Clinical Context</h6>
+              <div class="d-flex justify-content-between mb-2 small">
+                  <span class="text-muted">Blood Group:</span>
+                  <span class="fw-700 text-danger">O+ (History)</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2 small">
+                <span class="text-muted">Known Allergies:</span>
+                <span class="fw-700 text-dark">Penicillin, Peanuts</span>
+            </div>
+            <div class="d-flex justify-content-between mb-0 small">
+                <span class="text-muted">Last Visit:</span>
+                <span class="fw-700 text-primary">Dec 12, 2025</span>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .fw-800 { font-weight: 800; }
+  .fw-700 { font-weight: 700; }
+  .transition-base { transition: all 0.3s ease; }
+  .hover-up:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+  .x-small { font-size: 0.75rem; }
+  .fs-7 { font-size: 0.85rem; }
+  .nav-pills .nav-link { color: #555; }
+  .nav-pills .nav-link.active { background-color: #3f51b5; color: #fff; }
+  .pulse-red { animation: pulse-red 2s infinite; }
+  @keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+  }
+</style>
+{% endblock %}

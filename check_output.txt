@@ -1,0 +1,7 @@
+SystemCheckError: System check identified some issues:
+
+ERRORS:
+<class 'pharmacy.admin.PrescriptionAdmin'>: (admin.E108) The value of 'list_display[1]' refers to 'status', which is not a callable or attribute of 'PrescriptionAdmin', or an attribute, method, or field on 'pharmacy.Prescription'.
+<class 'pharmacy.admin.PrescriptionAdmin'>: (admin.E116) The value of 'list_filter[0]' refers to 'status', which does not refer to a Field.
+
+System check identified 2 issues (0 silenced).

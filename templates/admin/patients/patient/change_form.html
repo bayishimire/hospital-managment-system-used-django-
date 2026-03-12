@@ -1,0 +1,194 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_modify %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    /* Premium Manual Patient Form Design */
+    .patient-manual-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    .form-section-title {
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: #004d40;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 2px solid #e0f2f1;
+        padding-bottom: 10px;
+    }
+    .custom-field-box {
+        background: #fff;
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 15px;
+        border: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+    }
+    .custom-field-box:focus-within {
+        border-color: #004d40;
+        box-shadow: 0 8px 30px rgba(0, 77, 64, 0.08);
+    }
+    .field-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        margin-right: 12px;
+    }
+    .field-label {
+        font-weight: 800;
+        font-size: 0.75rem;
+        color: #1a3c5e;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+        display: block;
+    }
+    .manual-input {
+        width: 100%;
+        border: 2px solid #f0f0f0;
+        border-radius: 10px;
+        padding: 10px 15px;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        background: #fafafa;
+    }
+    .manual-input:focus {
+        border-color: #004d40;
+        background: #fff;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(0, 77, 64, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="patient-manual-container">
+    <div class="d-flex align-items-center mb-4">
+        <div class="bg-teal p-3 rounded-4 me-3 text-white">
+            <i class="bi bi-person-badge-fill fs-3"></i>
+        </div>
+        <div>
+            <h2 class="fw-800 text-dark mb-1">{% if add %}Permanent Clinical Record{% else %}Patient Archive: {{ original }}{% endif %}</h2>
+            <p class="text-muted small mb-0">Managing legal identification and medical history parameters.</p>
+        </div>
+    </div>
+
+    <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}{% if form_url %}action="{{ form_url }}" {% endif %}method="post" id="{{ opts.model_name }}_form" novalidate>
+        {% csrf_token %}
+        {% block form_top %}{% endblock %}
+
+        {% if errors %}
+            <div class="alert alert-danger rounded-4 border-0 shadow-sm mb-4">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>Please correct the errors below.
+                {{ adminform.form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <!-- ══ SECTION 1: IDENTITY ══════════════════════════════════ -->
+        <h5 class="form-section-title"><i class="bi bi-person-vcard text-teal"></i>Primary Identity</h5>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="custom-field-box h-100">
+                    <label class="field-label">First Name</label>
+                    <input type="text" name="first_name" value="{{ adminform.form.first_name.value|default:'' }}" class="manual-input" required>
+                    {% if adminform.form.first_name.errors %}<small class="text-danger mt-2 d-block">{{ adminform.form.first_name.errors.0 }}</small>{% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="custom-field-box h-100">
+                    <label class="field-label">Last Name</label>
+                    <input type="text" name="last_name" value="{{ adminform.form.last_name.value|default:'' }}" class="manual-input" required>
+                    {% if adminform.form.last_name.errors %}<small class="text-danger mt-2 d-block">{{ adminform.form.last_name.errors.0 }}</small>{% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="custom-field-box">
+                    <label class="field-label">Date of Birth</label>
+                    <input type="date" name="date_of_birth" value="{{ adminform.form.date_of_birth.value|date:'Y-m-d'|default:'' }}" class="manual-input" required>
+                    {% if adminform.form.date_of_birth.errors %}<small class="text-danger mt-2 d-block">{{ adminform.form.date_of_birth.errors.0 }}</small>{% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="custom-field-box">
+                    <label class="field-label">Gender</label>
+                    <select name="gender" class="manual-input" required>
+                        {% for val, label in adminform.form.fields.gender.choices %}
+                            <option value="{{ val }}" {% if adminform.form.gender.value == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ SECTION 2: CONTACT ══════════════════════════════════ -->
+        <h5 class="form-section-title"><i class="bi bi-envelope-at text-teal"></i>Contact Intelligence</h5>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="custom-field-box">
+                    <label class="field-label">Phone Number</label>
+                    <input type="tel" name="phone" value="{{ adminform.form.phone.value|default:'' }}" class="manual-input" required>
+                    {% if adminform.form.phone.errors %}<small class="text-danger mt-2 d-block">{{ adminform.form.phone.errors.0 }}</small>{% endif %}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="custom-field-box">
+                    <label class="field-label">Email Address</label>
+                    <input type="email" name="email" value="{{ adminform.form.email.value|default:'' }}" class="manual-input">
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="custom-field-box">
+                    <label class="field-label">Physical Address</label>
+                    <textarea name="address" class="manual-input" rows="3">{{ adminform.form.address.value|default:'' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ SECTION 3: EMERGENCY ══════════════════════════════════ -->
+        <h5 class="form-section-title"><i class="bi bi-exclamation-octagon text-danger"></i>Emergency Protocols</h5>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="custom-field-box">
+                    <label class="field-label">Emergency Contact Name</label>
+                    <input type="text" name="emergency_contact_name" value="{{ adminform.form.emergency_contact_name.value|default:'' }}" class="manual-input" required>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="custom-field-box">
+                    <label class="field-label">Emergency Phone</label>
+                    <input type="tel" name="emergency_contact_phone" value="{{ adminform.form.emergency_contact_phone.value|default:'' }}" class="manual-input" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ SECTION 4: INSURANCE ══════════════════════════════════ -->
+        <h5 class="form-section-title"><i class="bi bi-shield-check text-success"></i>Financial Parameters</h5>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="custom-field-box">
+                    <label class="field-label">Insurance Provider</label>
+                    <input type="text" name="insurance_provider" value="{{ adminform.form.insurance_provider.value|default:'' }}" class="manual-input">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="custom-field-box">
+                    <label class="field-label">Policy Number</label>
+                    <input type="text" name="insurance_policy_number" value="{{ adminform.form.insurance_policy_number.value|default:'' }}" class="manual-input">
+                </div>
+            </div>
+        </div>
+
+        {% block submit_buttons_bottom %}{% submit_row %}{% endblock %}
+    </form>
+</div>
+{% endblock %}
